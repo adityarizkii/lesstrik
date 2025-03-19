@@ -28,7 +28,7 @@ struct DailyUsageView:View{
     let templateRow = [
         GridItem(.fixed(30)),
         GridItem(.flexible()),
-        GridItem(.fixed( 50)),
+        GridItem(.fixed(50)),
         GridItem(.fixed(50)),
         GridItem(.fixed(30)),
 
