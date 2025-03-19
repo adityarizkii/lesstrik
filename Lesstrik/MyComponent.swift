@@ -12,6 +12,7 @@ struct CircularProgressView: View {
     var text : String
     var color : Color = .blue
     var padding : Float = 10
+    var textColor : Color = .black
 
     var body: some View {
         ZStack {
@@ -31,7 +32,7 @@ struct CircularProgressView: View {
             // Teks di Tengah
             Text(text)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.black)
+                .foregroundColor(textColor)
             
         }.padding(CGFloat(padding))
     }

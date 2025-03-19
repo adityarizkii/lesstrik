@@ -23,6 +23,7 @@ class DeviceData: ObservableObject, Identifiable {
 
 struct DailyUsageView:View{
     @State var count = 1
+    @State var showDetail = false
     
     let templateRow = [
         GridItem(.fixed(30)),
@@ -54,28 +55,39 @@ struct DailyUsageView:View{
             Text("Daily Usage")
                 .font(.system(size : 32, weight : .bold))
                 .frame(maxWidth : .infinity, alignment: .center)
+                .foregroundStyle(Color("DarkestYellow"))
+                
+            VStack{
+                Text("Rp.\(calculate())")
+                    .font(.system(size : 38, weight : .bold))
+                    .foregroundStyle(Color("Yellow"))
+                Text("Daily Goal : Rp.\(calculate())")
+                    .font(.headline)
+                    .foregroundStyle(Color("Green"))
+            }.padding(.vertical, 20)
             
-            Text("Rp.\(calculate())")
-                .font(.system(size : 38, weight : .bold))
-                .padding(.vertical, 20)
+           
             
             HStack{
                 Text("Device List")
                     .font(.title3)
                     .fontWeight(.bold)
+                    .foregroundStyle(Color("DarkestYellow"))
                 Spacer()
                 Button(action : {
                     data.append(DeviceData(id : count, name : "", power :0, time : 0.0))
                     count += 1
+                    showDetail.toggle()
+                                    
                 }){
                     Label("Add", systemImage: "plus")
-                        .font(.system(size : 18, weight : .bold))
+                        .font(.headline)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color("DarkYellow"))
                 }.background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(.gray)
+                        .fill(Color("Yellow"))
                 )
             }.padding(.vertical , 10)
             
@@ -84,11 +96,13 @@ struct DailyUsageView:View{
                     ForEach(columns, id : \.self ){ value in
                         Text(value)
                             .frame(maxWidth : .infinity, alignment : .leading)
+                            .foregroundStyle(Color("DarkestYellow"))
                             
                     }
                     ForEach(Array($data.enumerated()), id : \.element.id){ count,$value in
                         
-                        CircularProgressView(progress : 1, text : "\(count+1)", color : .gray, padding : 3)
+                        CircularProgressView(progress : 1, text : "\(count+1)", color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow"))
+                            
 
                         
                         TextField(
@@ -100,6 +114,7 @@ struct DailyUsageView:View{
                             RoundedRectangle(cornerRadius: 5)
                                 .stroke(.gray.opacity(0.5))
                         ).frame(maxWidth : .infinity)
+                    
                         
                         TextField(
                             "Watt",
@@ -138,6 +153,7 @@ struct DailyUsageView:View{
                         Button(action : {
                             if data.count > 1 {
                                 data.remove(at : count)
+                                showDetail = false
                             }
                         }){
                             Image(systemName : "minus.circle")
@@ -151,6 +167,8 @@ struct DailyUsageView:View{
                         
                             
                     }.frame(maxWidth : .infinity)
+                        .transition(.asymmetric(insertion: .move(edge : .trailing), removal: .opacity))
+                        .animation(.easeIn(duration: 0.2), value: data.count)
                     
                 }.frame(maxWidth : .infinity)
                     .padding(.trailing, 10)
@@ -173,13 +191,13 @@ struct DailyUsageView:View{
                     Text("Save")
                         .padding(10)
                         .frame(maxWidth : .infinity, alignment : .center)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color("DarkYellow"))
                         .font(.title)
                         .bold(true)
                 }
                 .background(
                     RoundedRectangle(cornerRadius:50)
-                        .fill(Color.gray)
+                        .fill(Color("Yellow"))
                 )
                 .frame(maxWidth : .infinity)
             }.frame(maxWidth : .infinity, alignment : .center)
@@ -187,6 +205,7 @@ struct DailyUsageView:View{
         .frame(maxWidth : .infinity, maxHeight : .infinity, alignment : .topLeading)
         .padding(.horizontal,25)
         .padding(.top, 30)
+        .background()
     }
     
 }
