@@ -12,19 +12,14 @@ struct HomePage: View {
 
     var body: some View {
         ZStack{
-            VStack{
-                Text("Hello, World!")
-                Button(action : {
-                    route.currentPage = .dailyUsage
-                }){
-                    Text("Go to Daily Usage")
-                }
-            }
+
             switch route.currentPage {
+                
                 case .dailyUsage:
                     DailyUsageView()
                 default:
-                    EmptyView()
+                    ContentView()
+
             }
            
         }.gesture(
@@ -46,9 +41,8 @@ struct HomePage: View {
 }
 
 #Preview {
-    @Previewable @StateObject var route = AppRoute()
 
     HomePage()
-        .environmentObject(route)
+        .environmentObject(AppRoute())
        
 }
