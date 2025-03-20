@@ -8,12 +8,12 @@ import SwiftUI
 
 
 class DeviceData: ObservableObject, Identifiable {
-    var id: Int
+    var id: Int64
     @Published var name: String
     @Published var power: Int
     @Published var time: Float
 
-    init(id: Int, name: String, power: Int, time: Float) {
+    init(id: Int64, name: String, power: Int, time: Float) {
         self.id = id
         self.name = name
         self.power = power
@@ -22,8 +22,10 @@ class DeviceData: ObservableObject, Identifiable {
 }
 
 struct DailyUsageView:View{
-    @State var count = 1
+    @State var count : Int64 = 1
     @State var showDetail = false
+    @StateObject var DailyData = Daily()
+
     
     let templateRow = [
         GridItem(.fixed(30)),
@@ -99,7 +101,7 @@ struct DailyUsageView:View{
                             .foregroundStyle(Color("DarkestYellow"))
                             
                     }
-                    ForEach(Array($data.enumerated()), id : \.element.id){ count,$value in
+                    ForEach(Array($DailyData.data.enumerated()), id : \.element.id){ count,$value in
                         
                         CircularProgressView(progress : 1, text : "\(count+1)", color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow"))
                             
