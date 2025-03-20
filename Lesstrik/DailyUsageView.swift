@@ -7,28 +7,37 @@
 import SwiftUI
 
 
-class DeviceData: ObservableObject, Identifiable {
-    var id: Int
-    @Published var name: String
-    @Published var power: Int
-    @Published var time: Float
+class DeviceData: ObservableObject, Identifiable, Equatable {
+    static func == (lhs: DeviceData, rhs: DeviceData) -> Bool {
+           return lhs.id == rhs.id &&
+                  lhs.name == rhs.name &&
+                  lhs.power == rhs.power &&
+                  lhs.time == rhs.time
+       }
 
-    init(id: Int, name: String, power: Int, time: Float) {
-        self.id = id
-        self.name = name
-        self.power = power
-        self.time = time
-    }
+       var id: Int64
+       @Published var name: String
+       @Published var power: Int
+       @Published var time: Float
+
+       init(id: Int64, name: String, power: Int, time: Float) {
+           self.id = id
+           self.name = name
+           self.power = power
+           self.time = time
+       }
 }
 
 struct DailyUsageView:View{
-    @State var count = 1
+    @State var count : Int64 = 1
     @State var showDetail = false
+    @StateObject var DailyData = Daily()
+
     
     let templateRow = [
         GridItem(.fixed(30)),
         GridItem(.flexible()),
-        GridItem(.fixed( 50)),
+        GridItem(.fixed(50)),
         GridItem(.fixed(50)),
         GridItem(.fixed(30)),
 
@@ -40,15 +49,15 @@ struct DailyUsageView:View{
     ];
     
     
-    func calculate () -> Int{
-        var total = Float(0);
-            data.forEach{value in
-                total += Float(value.power) * value.time
-            }
-       
-        return Int( total * 1.262 ) ;
+    @State var totalCost: Int = 0
+
+    func calculateTotal() {
+        var total = Float(0)
+        DailyData.data.forEach { value in
+            total += Float(value.power) * value.time
+        }
+        totalCost = Int(total * 1.262)
     }
-    
     
     var body : some View{
         VStack{
@@ -58,10 +67,11 @@ struct DailyUsageView:View{
                 .foregroundStyle(Color("DarkestYellow"))
                 
             VStack{
-                Text("Rp.\(calculate())")
-                    .font(.system(size : 38, weight : .bold))
+                Text("Rp.\(totalCost)")
+                    .font(.system(size: 38, weight: .bold))
                     .foregroundStyle(Color("Yellow"))
-                Text("Daily Goal : Rp.\(calculate())")
+                
+                Text("Daily Goal: Rp.\(totalCost)")
                     .font(.headline)
                     .foregroundStyle(Color("Green"))
             }.padding(.vertical, 20)
@@ -75,7 +85,7 @@ struct DailyUsageView:View{
                     .foregroundStyle(Color("DarkestYellow"))
                 Spacer()
                 Button(action : {
-                    data.append(DeviceData(id : count, name : "", power :0, time : 0.0))
+                    DailyData.createData(data: [DeviceData(id : count, name : "", power :0, time : 0.0)])
                     count += 1
                     showDetail.toggle()
                                     
@@ -97,97 +107,96 @@ struct DailyUsageView:View{
                         Text(value)
                             .frame(maxWidth : .infinity, alignment : .leading)
                             .foregroundStyle(Color("DarkestYellow"))
-                            
+                        
                     }
-                    ForEach(Array($data.enumerated()), id : \.element.id){ count,$value in
-                        
-                        CircularProgressView(progress : 1, text : "\(count+1)", color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow"))
+                    if DailyData.data.count > 0 {
+                        ForEach(Array($DailyData.data.enumerated()), id : \.element.id){ count,$value in
                             
-
-                        
-                        TextField(
-                            "Device Name",
-                            text : $value.name
-                        )
-                        .padding(5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 5)
-                                .stroke(.gray.opacity(0.5))
-                        ).frame(maxWidth : .infinity)
-                    
-                        
-                        TextField(
-                            "Watt",
-                            text : Binding(
-                                get : {String(value.power)=="0" ? "" : String(value.power)},
-                                set : { val in
-                                    if let intValue = Int(val) {
-                                        value.power = intValue
-                                    }
-                                }
+                            CircularProgressView(progress : 1, text : "\(count+1)", color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow"))
+                            
+                            
+                            
+                            TextField(
+                                "Device Name",
+                                text : $value.name
                             )
-                        )
-                        .padding(5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 5)
-                                .stroke(.gray.opacity(0.5))
-                        ).frame(maxWidth : .infinity)
-                        
-                        TextField(
-                            "Hrs",
-                            text : Binding(
-                                get : {String(value.time) == "0.0" ? "" : String(value.time)},
-                                set : { val in
-                                    if let intValue = Float(val) {
-                                        value.time = intValue
+                            .padding(5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(.gray.opacity(0.5))
+                            ).frame(maxWidth : .infinity)
+                            
+                            
+                            TextField(
+                                "Watt",
+                                text : Binding(
+                                    get : {String(value.power)=="0" ? "" : String(value.power)},
+                                    set : { val in
+                                        if let intValue = Int(val) {
+                                            value.power = intValue
+                                            calculateTotal()
+                                        }
                                     }
-                                }
+                                )
                             )
-                        )
-                        .padding(5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 5)
-                                .stroke(.gray.opacity(0.5))
-                        ).frame(maxWidth : .infinity)
-                        
-                        Button(action : {
-                            if data.count > 1 {
-                                data.remove(at : count)
+                            .padding(5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(.gray.opacity(0.5))
+                            ).frame(maxWidth : .infinity)
+                            
+                            TextField(
+                                "Hrs",
+                                text : Binding(
+                                    get : {String(value.time) == "0.0" ? "" : String(value.time)},
+                                    set : { val in
+                                        if let intValue = Float(val) {
+                                            value.time = intValue
+                                            calculateTotal()
+                                        }
+                                    }
+                                )
+                            )
+                            .padding(5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(.gray.opacity(0.5))
+                            ).frame(maxWidth : .infinity)
+                            
+                            Button(action : {
+                                
+                                DailyData.deleteDailyUsage(id: value.id)
                                 showDetail = false
+                                
+                            }){
+                                Image(systemName : "minus.circle")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .padding(7)
+                                    .foregroundStyle(.gray)
                             }
-                        }){
-                            Image(systemName : "minus.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .padding(7)
-                                .foregroundStyle(.gray)
-                        }
-                        .frame(width : 40.0, height : 40)
-
-                        
+                            .frame(width : 40.0, height : 40)
                             
+                            
+                            
+                        }.frame(maxWidth : .infinity)
+                            .transition(.asymmetric(insertion: .move(edge : .trailing), removal: .opacity))
+                            .animation(.easeIn(duration: 0.2), value: DailyData.data.count)
+                        }
                     }.frame(maxWidth : .infinity)
-                        .transition(.asymmetric(insertion: .move(edge : .trailing), removal: .opacity))
-                        .animation(.easeIn(duration: 0.2), value: data.count)
-                    
-                }.frame(maxWidth : .infinity)
-                    .padding(.trailing, 10)
+                        .padding(.trailing, 10)
+                
             }
-            
-            
             
             
             Spacer()
             VStack{
-//                HStack{
-//                    Text("Estimate \nCost")
-//                        .font(.system(size : 22, weight : .bold))
-//                    Spacer()
-//                    Text("Rp.Total cost")
-//                        .font(.system(size : 30, weight : .bold))
-//                }.frame(alignment : .center)
                 
-                Button(action : {}){
+                Button(action : {
+                    DailyData.data.forEach{ value in
+                        DailyData.updateDailyUsage(id: value.id, newName: value.name, newPower: Int32(value.power), newTime: Float(value.time))
+                    }
+                }){
                     Text("Save")
                         .padding(10)
                         .frame(maxWidth : .infinity, alignment : .center)
@@ -206,6 +215,12 @@ struct DailyUsageView:View{
         .padding(.horizontal,25)
         .padding(.top, 30)
         .background()
+        .onAppear {
+            DailyData.loadData()
+            calculateTotal()
+        }.onReceive(DailyData.objectWillChange) { _ in
+            calculateTotal()
+        }
     }
     
 }

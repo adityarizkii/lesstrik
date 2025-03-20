@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import CoreData
 
 @main
 struct LesstrikApp: App {
+    
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DailyUsageView()
         }
     }
 }
