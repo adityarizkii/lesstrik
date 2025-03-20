@@ -28,10 +28,11 @@ class Daily: ObservableObject {
                     )
                 }
                 
-                print(self.data)
+                self.data.forEach{ da in
+                    print(da.name)
+                }
                 if(self.data.count == 0 ){
                     self.createData(data: [DeviceData(id : 0, name : "" , power : 0, time : 0.0)])
-                    self.loadData()
                 }
             }
         }
@@ -89,24 +90,29 @@ class Daily: ObservableObject {
         }
     }
     
-    func updateDailyUsage(id: Int64, newName: String, newPower: Int32, newTime: Float) {
-        let request: NSFetchRequest<DailyUsages> = DailyUsages.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %d", id)
-        
-        do {
-            let results = try context.fetch(request)
-            if let dailyUsage = results.first {
-                dailyUsage.device_name = newName
-                dailyUsage.power = newPower
-                dailyUsage.power_time = newTime
+    func updateDailyUsage(data : [DeviceData]) {
+        self.context.perform {
+            data.forEach { device in
+                let request: NSFetchRequest<DailyUsages> = DailyUsages.fetchRequest()
+                request.predicate = NSPredicate(format: "id == %d", device.id)
                 
-                self.saveContext()
-            } else {
-                print("Data tidak ditemukan untuk ID \(id)")
+                do {
+                    let results = try self.context.fetch(request)
+                    if let dailyUsage = results.first {
+                        dailyUsage.device_name = device.name
+                        dailyUsage.power = Int32(device.power)
+                        dailyUsage.power_time = Float(device.time)
+                        
+                        self.saveContext()
+                    } else {
+                        print("Data tidak ditemukan untuk ID \(device.id)")
+                    }
+                } catch {
+                    print("Gagal update data: \(error.localizedDescription)")
+                }
             }
-        } catch {
-            print("Gagal update data: \(error.localizedDescription)")
         }
+        
     }
     
     
