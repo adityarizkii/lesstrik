@@ -10,11 +10,12 @@ import CoreData
 
 @main
 struct LesstrikApp: App {
-    
+    @StateObject var route = AppRoute()
     
     var body: some Scene {
         WindowGroup {
-            DailyUsageView()
+            HomePage()
+                .environmentObject(route)
         }
     }
 }

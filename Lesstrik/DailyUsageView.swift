@@ -29,6 +29,8 @@ class DeviceData: ObservableObject, Identifiable, Equatable {
 }
 
 struct DailyUsageView:View{
+    @EnvironmentObject var route: AppRoute
+    @State var offset = CGSize.zero
     @State var count : Int64 = 1
     @State var showDetail = false
     @StateObject var DailyData = Daily()
@@ -193,9 +195,7 @@ struct DailyUsageView:View{
             VStack{
                 
                 Button(action : {
-                    DailyData.data.forEach{ value in
-                        DailyData.updateDailyUsage(id: value.id, newName: value.name, newPower: Int32(value.power), newTime: Float(value.time))
-                    }
+                    DailyData.updateDailyUsage(data : DailyData.data)
                 }){
                     Text("Save")
                         .padding(10)
@@ -220,7 +220,21 @@ struct DailyUsageView:View{
             calculateTotal()
         }.onReceive(DailyData.objectWillChange) { _ in
             calculateTotal()
-        }
+        }.gesture(
+            DragGesture()
+                .onChanged { gesture in
+                    print(gesture.translation)
+                    offset = gesture.translation
+                }
+                .onEnded { _ in
+                    if offset.width > 100 {
+                        print("Back")
+                        route.currentPage = .home
+                    } else {
+                        offset = .zero
+                    }
+                }
+        )
     }
     
 }
