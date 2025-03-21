@@ -215,6 +215,8 @@ struct DailyUsageView:View{
         .padding(.horizontal,25)
         .padding(.top, 30)
         .background()
+        //.transition(.asymmetric(insertion: .slide, removal: .slide))
+        .animation(.easeIn(duration : 2), value : route.currentPage)
         .onAppear {
             DailyData.loadData()
             calculateTotal()
@@ -241,4 +243,5 @@ struct DailyUsageView:View{
 
 #Preview {
     DailyUsageView()
+        .environmentObject(AppRoute())
 }

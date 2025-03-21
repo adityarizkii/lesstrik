@@ -17,6 +17,7 @@ struct BillDummy: Identifiable {
 struct ContentView: View {
     // swiftdata
     @Environment(\.modelContext) private var context
+    @EnvironmentObject var route : AppRoute
 //    @Query private var bills: [Bill]
     
     //dummy data
@@ -108,18 +109,18 @@ struct ContentView: View {
                                     .fontWeight(.bold)
                                     .frame(maxWidth: .infinity, minHeight: 40)
                                     .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : .gray)
-                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
-                                    Text(formatToK(bill.totalCost))
-                                        .font(.system(.caption2, weight: .medium))
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 4)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 4)
-                                                .fill(.blue.opacity(0.3))
-                                        )
-                                } else {
-                                    Text("-")
-                                }
+//                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
+//                                    Text(formatToK(bill.totalCost))
+//                                        .font(.system(.caption2, weight: .medium))
+//                                        .frame(maxWidth: .infinity)
+//                                        .padding(.vertical, 4)
+//                                        .overlay(
+//                                            RoundedRectangle(cornerRadius: 4)
+//                                                .fill(.blue.opacity(0.3))
+//                                        )
+//                                } else {
+//                                    Text("-")
+//                                }
                             }
                         }
                     }
@@ -130,6 +131,7 @@ struct ContentView: View {
                 
                 Button {
                     path.append("Calculate")
+                    route.currentPage = .dailyUsage
                 } label: {
                     Text("Hitung")
                         .foregroundStyle(.black)
@@ -189,5 +191,7 @@ struct ContentView: View {
 }
 
 #Preview {
+    @Previewable @StateObject var route = AppRoute()
     ContentView()
+        .environmentObject(route)
 }
