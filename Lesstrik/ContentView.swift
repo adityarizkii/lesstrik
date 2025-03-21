@@ -18,6 +18,8 @@ struct ContentView: View {
     // swiftdata
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
+    @Binding var alert : myAlert
+
 //    @Query private var bills: [Bill]
     
     //dummy data
@@ -36,129 +38,147 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            VStack {
-                Text("Good Morning")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.system(.largeTitle, weight: .bold))
-                
-                HStack {
-                    Text("Rp10.000")
-                        .font(.system(.title3))
-                    Text("/")
-                        .font(.system(.title3))
-                    Text("Rp120.000")
-                        .font(.system(.title3))
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(.blue), lineWidth: 2)
-                        .fill(.blue.opacity(0.1))
-                )
-                
-                HStack {
-                    Spacer()
-                    Button {
-                        print("set")
-                    } label: {
-                        Text("Set Your Goal")
-                            .font(.system(.callout))
-                            .foregroundStyle(.black)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical,8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.blue, lineWidth: 2)
-                            .fill(.blue.opacity(0.3))
-                    )
-                }
-
-                Text("Daily Usage")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.system(.title, weight: .semibold))
-                
-                HStack {
-                    Text("March 2025")
-                    Spacer()
+            ZStack{
+                VStack {
+                    Text("Good Morning")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.largeTitle, weight: .bold))
+                    
                     HStack {
-                        Image(systemName: "chevron.left")
-                        Image(systemName: "chevron.right")
+                        Text("Rp10.000")
+                            .font(.system(.title3))
+                        Text("/")
+                            .font(.system(.title3))
+                        Text("Rp120.000")
+                            .font(.system(.title3))
                     }
-                }
-                
-                // calendar
-                HStack {
-                    ForEach(daysOfWeek.indices, id:  \.self) { index in
-                        Text(daysOfWeek[index])
-                            .fontWeight(.black)
-                            .foregroundStyle(.blue.opacity(0.8))
-                            .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.blue), lineWidth: 2)
+                            .fill(.blue.opacity(0.1))
+                    )
+                    
+                    HStack {
+                        Spacer()
+                        Button (action : {
+                            print("Set")
+                            self.alert.visible = true
+                        }){
+                            Text("Set Your Goal")
+                                .font(.system(.callout))
+                                .foregroundStyle(.black)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical,8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.blue, lineWidth: 2)
+                                .fill(.blue.opacity(0.3))
+                        )
                     }
-                }
-                .padding(.top)
-                .padding(.horizontal)
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(days, id: \.self) { day in
-                        if(day.monthInt != date.monthInt) {
-                            Text("")
-                        } else {
-                            VStack(spacing: 0) {
-                                Text(day.formatted(.dateTime.day()))
-                                    .fontWeight(.bold)
-                                    .frame(maxWidth: .infinity, minHeight: 40)
-                                    .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : .gray)
-//                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
-//                                    Text(formatToK(bill.totalCost))
-//                                        .font(.system(.caption2, weight: .medium))
-//                                        .frame(maxWidth: .infinity)
-//                                        .padding(.vertical, 4)
-//                                        .overlay(
-//                                            RoundedRectangle(cornerRadius: 4)
-//                                                .fill(.blue.opacity(0.3))
-//                                        )
-//                                } else {
-//                                    Text("-")
-//                                }
+
+                    Text("Daily Usage")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.title, weight: .semibold))
+                    
+                    HStack {
+                        Text("March 2025")
+                        Spacer()
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Image(systemName: "chevron.right")
+                        }
+                    }
+                    
+                    // calendar
+                    HStack {
+                        ForEach(daysOfWeek.indices, id:  \.self) { index in
+                            Text(daysOfWeek[index])
+                                .fontWeight(.black)
+                                .foregroundStyle(.blue.opacity(0.8))
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding(.top)
+                    .padding(.horizontal)
+                    LazyVGrid(columns: columns, spacing: 0) {
+                        ForEach(days, id: \.self) { day in
+                            if(day.monthInt != date.monthInt) {
+                                Text("")
+                            } else {
+                                VStack(spacing: 0) {
+                                    Text(day.formatted(.dateTime.day()))
+                                        .fontWeight(.bold)
+                                        .frame(maxWidth: .infinity, minHeight: 40)
+                                        .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : .gray)
+    //                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
+    //                                    Text(formatToK(bill.totalCost))
+    //                                        .font(.system(.caption2, weight: .medium))
+    //                                        .frame(maxWidth: .infinity)
+    //                                        .padding(.vertical, 4)
+    //                                        .overlay(
+    //                                            RoundedRectangle(cornerRadius: 4)
+    //                                                .fill(.blue.opacity(0.3))
+    //                                        )
+    //                                } else {
+    //                                    Text("-")
+    //                                }
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    Button {
+                        path.append("Calculate")
+                        route.currentPage = .dailyUsage
+                    } label: {
+                        Text("Hitung")
+                            .foregroundStyle(.black)
+                            .font(.system(.title3, weight: .medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(.blue.opacity(0.5))
                 }
-                .padding(.horizontal)
-                
-                Spacer()
-                
-                Button {
-                    path.append("Calculate")
-                    route.currentPage = .dailyUsage
-                } label: {
-                    Text("Hitung")
-                        .foregroundStyle(.black)
-                        .font(.system(.title3, weight: .medium))
+                .onAppear {
+                    days = date.calendarDisplayDays
+                    print(getDaysInMonth(from: convertToGMT7(date)))
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(.blue.opacity(0.5))
+                .onChange(of: date) {
+                    days = date.calendarDisplayDays
+                    print(getDaysInMonth(from: convertToGMT7(date)))
+                }
+                .padding()
+                
+                .navigationDestination(for: String.self) { destination in
+                    if destination == "Calculate" {
+    //                    CalculationViewBeta()
+                    }
+                }
+                
+                alert
+                    .onAppear {
+                        alert.onSave = { value in
+                            if let input = Int(value) {
+                                print(input)
+                            }
+                            return
+                        }
+                     
+                    }
+
+                
             }
-            .onAppear {
-                days = date.calendarDisplayDays
-                print(getDaysInMonth(from: convertToGMT7(date)))
-            }
-            .onChange(of: date) {
-                days = date.calendarDisplayDays
-                print(getDaysInMonth(from: convertToGMT7(date)))
-            }
-            .padding()
             
-            .navigationDestination(for: String.self) { destination in
-                if destination == "Calculate" {
-//                    CalculationViewBeta()
-                }
-            }
         }
         
     }
+    
     
     func formatToK(_ number: Int) -> String {
         if number >= 1000 {
@@ -192,6 +212,14 @@ struct ContentView: View {
 
 #Preview {
     @Previewable @StateObject var route = AppRoute()
-    ContentView()
+    @Previewable @State var alert = myAlert(
+        visible : false,
+        onSave : {value in
+            return
+        }
+    )
+    ContentView(
+        alert : $alert
+    )
         .environmentObject(route)
 }
