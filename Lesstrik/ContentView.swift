@@ -18,7 +18,8 @@ struct ContentView: View {
     // swiftdata
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
-    @Binding var alert : myAlert
+    @State var show = false
+    @State var target = 0
 
 //    @Query private var bills: [Bill]
     
@@ -49,7 +50,7 @@ struct ContentView: View {
                             .font(.system(.title3))
                         Text("/")
                             .font(.system(.title3))
-                        Text("Rp120.000")
+                        Text("Rp\(target)")
                             .font(.system(.title3))
                     }
                     .frame(maxWidth: .infinity)
@@ -64,7 +65,7 @@ struct ContentView: View {
                         Spacer()
                         Button (action : {
                             print("Set")
-                            self.alert.visible = true
+                            show = true
                         }){
                             Text("Set Your Goal")
                                 .font(.system(.callout))
@@ -72,7 +73,7 @@ struct ContentView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical,8)
-                        .overlay(
+                        .background(
                             RoundedRectangle(cornerRadius: 4)
                                 .stroke(Color.blue, lineWidth: 2)
                                 .fill(.blue.opacity(0.3))
@@ -161,19 +162,21 @@ struct ContentView: View {
                     }
                 }
                 
-                alert
-                    .onAppear {
-                        alert.onSave = { value in
-                            if let input = Int(value) {
-                                print(input)
-                            }
-                            return
+                
+                myAlert(
+                    visible : $show,
+                    onSave : { value in
+                        if var num = Int(value) {
+                            target = num
                         }
-                     
+                    },
+                    onCancel: {
+                        
                     }
-
+                )
                 
             }
+           
             
         }
         
@@ -212,14 +215,8 @@ struct ContentView: View {
 
 #Preview {
     @Previewable @StateObject var route = AppRoute()
-    @Previewable @State var alert = myAlert(
-        visible : false,
-        onSave : {value in
-            return
-        }
-    )
+
     ContentView(
-        alert : $alert
     )
         .environmentObject(route)
 }

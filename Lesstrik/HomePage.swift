@@ -9,12 +9,6 @@ import SwiftUI
 struct HomePage: View {
     @EnvironmentObject var route: AppRoute
     @State private var offset = CGSize.zero
-    @State var alert = myAlert(
-        visible : true,
-        onSave : { value in
-            return
-    })
-
     var body: some View {
         
         ZStack{
@@ -24,7 +18,7 @@ struct HomePage: View {
                 case .dailyUsage:
                     DailyUsageView()
                 default:
-                ContentView(alert : $alert)
+                ContentView()
             }
            
         }.gesture(

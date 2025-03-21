@@ -70,91 +70,91 @@ struct CustomRoundedRectangle: Shape {
 }
 
 
-struct myAlert : View{
-    @State var visible : Bool = false
-    @State var value : String = ""
-    var onSave : (String) -> Void
+struct myAlert: View {
+    @Binding var visible: Bool
+    @State var value: String = ""
+    var onSave: (String) -> Void
+    var onCancel: () -> Void
     
-    var body : some View{
+    var body: some View {
         if visible {
-            VStack{
+            VStack {
                 Text("SET YOUR GOAL")
                     .font(.headline)
-                    .padding(.horizontal,20)
+                    .padding(.horizontal, 20)
                     .padding(.top, 20)
-                
+
                 Text("Please input your usage target for this month")
-                    .padding(.horizontal,20)
+                    .padding(.horizontal, 20)
                     .multilineTextAlignment(.center)
-                
-                TextField("Input your goal", text : $value)
-                    .padding(.horizontal,10)
+
+                TextField("Input your goal", text: $value)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 10)
                     .background(
-                        RoundedRectangle(cornerRadius : 10)
+                        RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white)
                     )
-                    .padding(.horizontal,20)
-                
-                
-                HStack(spacing:0){
-                    Button(action : {
-                        visible = false
-                    }){
+                    .padding(.horizontal, 20)
+
+                HStack(spacing: 0) {
+                    Button(action: {
+                        visible = false  // ✅ Tutup alert
+                        onCancel()
+                    }) {
                         Text("Cancel")
-                            .frame(maxWidth : .infinity, alignment : .center)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(10)
                     }
                     .background(
                         CustomRoundedRectangle(
-                            topLeft : 0,
-                            topRight: 0,
-                            bottomLeft: 10,
-                            bottomRight: 0
+                            topLeft: 0, topRight: 0, bottomLeft: 10, bottomRight: 0
                         )
                         .stroke()
                         .fill(Color.gray.opacity(0.3))
                     )
-                    .frame(maxWidth : .infinity, alignment : .center)
-                    
-                    Button(action : {
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                    Button(action: {
+                        visible = false  // ✅ Tutup alert
                         onSave(value)
-                    }){
+                    }) {
                         Text("Save")
-                            .frame(maxWidth : .infinity, alignment : .center)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(10)
                     }
                     .background(
                         CustomRoundedRectangle(
-                            topLeft : 0,
-                            topRight: 0,
-                            bottomLeft:0,
-                            bottomRight: 10
+                            topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 10
                         )
                         .stroke()
                         .fill(Color.gray.opacity(0.3))
-                        
                     )
-                    .frame(maxWidth : .infinity, alignment : .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.top, 20)
             }
             .background(
-                RoundedRectangle(cornerRadius :10)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(Color.gray)
             )
             .padding(50)
-        }else{
+        } else {
             EmptyView()
-                .frame(maxWidth : 0, maxHeight : 0)
+                .frame(maxWidth: 0, maxHeight: 0)
         }
     }
 }
 
+
 #Preview{
     myAlert(
-        visible : true,
+        visible : .constant(true),
         onSave : { value in
-        return
-    })
+            return
+        },
+        onCancel: {
+            
+        }
+    )
 }
