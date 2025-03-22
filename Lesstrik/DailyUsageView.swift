@@ -114,7 +114,10 @@ struct DailyUsageView:View{
                     if DailyData.data.count > 0 {
                         ForEach(Array($DailyData.data.enumerated()), id : \.element.id){ count,$value in
                             
-                            CircularProgressView(progress : 1, text : "\(count+1)", color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow"))
+                            CircularProgressView(progress : 1,color : Color("Yellow"), padding : 3, textColor : Color("DarkestYellow")
+                            ){
+                                Text("\(count+1)")
+                            }
                             
                             
                             
