@@ -21,6 +21,7 @@ struct ContentView: View {
     @State var show = false
     @State var target = 300000
     @State var usage = 200000
+    var dailyUsage = DailyUsage()
 
 //    @Query private var bills: [Bill]
     
@@ -219,6 +220,7 @@ struct ContentView: View {
                 .onAppear {
                     days = date.calendarDisplayDays
                     print(getDaysInMonth(from: convertToGMT7(date)))
+                    dailyUsage.getDailyUsages()
                 }
                 .onChange(of: date) {
                     days = date.calendarDisplayDays

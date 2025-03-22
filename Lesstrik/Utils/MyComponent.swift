@@ -135,7 +135,7 @@ struct myAlert: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.gray)
+                    .fill(Color("LightGrey"))
             )
             .padding(50)
         } else {
