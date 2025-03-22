@@ -7,32 +7,31 @@
 
 import SwiftUI
 
-struct CircularProgressView: View {
+struct CircularProgressView<Content : View>: View {
     var progress: CGFloat // Nilai progress (0.0 - 1.0)
-    var text : String
     var color : Color = .blue
     var padding : Float = 10
     var textColor : Color = .black
+    var thick : Int = 5
+    var text : () -> Content
 
     var body: some View {
         ZStack {
             // Background Lingkaran (Track)
             Circle()
-                .stroke(Color.gray.opacity(0.3), lineWidth: 5)
+                .stroke(Color.gray.opacity(0.3), lineWidth: CGFloat(thick))
 
             // Progress Lingkaran (Indicator)
             Circle()
                 .trim(from: 0.0, to: progress) // Trim sesuai progress
                 .stroke(
                     AngularGradient(gradient: Gradient(colors: [color]), center: .center),
-                    style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                    style: StrokeStyle(lineWidth: CGFloat(thick), lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90)) // Mulai dari atas
 
             // Teks di Tengah
-            Text(text)
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(textColor)
+            text()
             
         }.padding(CGFloat(padding))
     }

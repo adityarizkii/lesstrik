@@ -19,7 +19,8 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
     @State var show = false
-    @State var target = 0
+    @State var target = 300000
+    @State var usage = 200000
 
 //    @Query private var bills: [Bill]
     
@@ -44,45 +45,97 @@ struct ContentView: View {
                     Text("Good Morning")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.system(.largeTitle, weight: .bold))
-                    
-                    HStack {
-                        Text("Rp10.000")
-                            .font(.system(.title3))
-                        Text("/")
-                            .font(.system(.title3))
-                        Text("Rp\(target)")
-                            .font(.system(.title3))
+                        .padding(.top, 20)
+                    HStack{
+                        
+                        ZStack{
+                            CircularProgressView(
+                                progress : Double(usage)/Double(target),
+                                color : Color("TintedGreen"),
+                                padding : 1,
+                                thick : 20
+                            ){
+                                VStack{
+                                    Text("Rp")
+                                        .font(.title2)
+                                        .bold(true)
+                                    Text("\(usage)")
+                                        .font(.subheadline)
+                                        .bold(true)
+                                        .foregroundStyle(Color("TintedGreen"))
+                                    Text("\(target)")
+                                        .font(.caption)
+                                }
+                              
+                            }
+                            .padding(.vertical,20)
+                            .padding(.leading, 10)
+                            .frame(maxHeight : 150)
+                            
+                             
+                            Button (action : {
+                                print("Set")
+                                show = true
+                            }){
+                                Text("Set Goal")
+                                    .font(.system(.caption))
+                                    .foregroundStyle(.black)
+                                    .bold(true)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical,8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 50)
+                                    .fill(Color("Yellow"))
+                            )
+                            .frame(alignment : .bottom)
+                            .offset(y:50)
+                            .padding(.leading, 10)
+
+                        }
+                        .frame(alignment : .bottom)
+                        
+                        Spacer()
+                        
+                        VStack{
+                            Text("Daily Goal : ")
+                                .font(.headline)
+                                .frame(maxWidth : .infinity, alignment : .leading)
+                            Text("Rp \(target/30)")
+                                .frame(maxWidth : .infinity, alignment : .leading)
+                                .padding(.bottom, 2)
+                                .font(.title2)
+                                .bold(true)
+                            
+                            Text("Avg. Usage :")
+                                .font(.headline)
+                                .frame(maxWidth : .infinity, alignment : .leading)
+                            Text("Rp \(target/30)")
+                                .frame(maxWidth : .infinity, alignment : .leading)
+                                .font(.title2)
+                                .bold(true)
+                            
+                        }
+                        .frame(maxWidth : .infinity, alignment : .top)
+                        .padding(.leading , 30)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.horizontal, 10)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
+                        RoundedRectangle(cornerRadius: 20)
                             .stroke(Color(.blue), lineWidth: 2)
-                            .fill(.blue.opacity(0.1))
+                            .fill(.gray.opacity(0.1))
                     )
                     
                     HStack {
                         Spacer()
-                        Button (action : {
-                            print("Set")
-                            show = true
-                        }){
-                            Text("Set Your Goal")
-                                .font(.system(.callout))
-                                .foregroundStyle(.black)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical,8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.blue, lineWidth: 2)
-                                .fill(.blue.opacity(0.3))
-                        )
+                        
                     }
 
                     Text("Daily Usage")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.system(.title, weight: .semibold))
+                        .font(.system(.title, weight: .bold))
+                        .padding(.top, 20)
                     
                     HStack {
                         Text("March 2025")
@@ -98,12 +151,12 @@ struct ContentView: View {
                         ForEach(daysOfWeek.indices, id:  \.self) { index in
                             Text(daysOfWeek[index])
                                 .fontWeight(.black)
-                                .foregroundStyle(.blue.opacity(0.8))
+                                .foregroundStyle(Color("ShadedGreen"))
                                 .frame(maxWidth: .infinity)
                         }
                     }
                     .padding(.top)
-                    .padding(.horizontal)
+                    .padding(.horizontal,0)
                     LazyVGrid(columns: columns, spacing: 0) {
                         ForEach(days, id: \.self) { day in
                             if(day.monthInt != date.monthInt) {
@@ -113,7 +166,19 @@ struct ContentView: View {
                                     Text(day.formatted(.dateTime.day()))
                                         .fontWeight(.bold)
                                         .frame(maxWidth: .infinity, minHeight: 40)
-                                        .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : .gray)
+                                        .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : Color("DarkYellow"))
+                                    
+                                    if date.startOfDay >= day.startOfDay {
+                                        Text("10k")
+                                            .font(.caption2)
+                                            .foregroundStyle(Color("Green"))
+                                            .bold(true)
+                                            .padding(.horizontal, 5)
+                                            .background(
+                                                RoundedRectangle(cornerRadius : 5).fill(Color("Yellow"))
+                                            )
+                                            .offset(y :  -8)
+                                    }
     //                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
     //                                    Text(formatToK(bill.totalCost))
     //                                        .font(.system(.caption2, weight: .medium))
@@ -130,7 +195,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal,0)
                     
                     Spacer()
                     
@@ -138,13 +203,18 @@ struct ContentView: View {
                         path.append("Calculate")
                         route.currentPage = .dailyUsage
                     } label: {
-                        Text("Hitung")
-                            .foregroundStyle(.black)
-                            .font(.system(.title3, weight: .medium))
+                        Text("Add Daily Usage")
+                            .foregroundStyle(Color("ShadedGreen"))
+                            .font(.system(.title3, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(.blue.opacity(0.5))
+                    .background(
+                        RoundedRectangle(
+                            cornerRadius : 50
+                        )
+                        .fill(Color("Yellow"))
+                    )
                 }
                 .onAppear {
                     days = date.calendarDisplayDays
@@ -154,7 +224,7 @@ struct ContentView: View {
                     days = date.calendarDisplayDays
                     print(getDaysInMonth(from: convertToGMT7(date)))
                 }
-                .padding()
+                .padding(.horizontal, 25)
                 
                 .navigationDestination(for: String.self) { destination in
                     if destination == "Calculate" {
