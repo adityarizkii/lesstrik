@@ -110,6 +110,10 @@ struct HomePage: View {
         
     }
     
+    func getFinalCost()->Int{
+        return Int(Double(usage + 66704) * 1.08)
+    }
+    
     // navigation
     @State private var path = NavigationPath()
     
@@ -133,13 +137,13 @@ struct HomePage: View {
                             
                             ZStack{
                                 CircularProgressView(
-                                    progress : Double(usage)/Double(recordData.usage_goal ),
+                                    progress : Double(getFinalCost())/Double(recordData.usage_goal ),
                                     color : Color("TintedGreen"),
                                     padding : 1,
                                     thick : 30
                                 ){
                                     VStack{
-                                        Text("\(String(format  : "%.0f" , Double(usage)/Double(recordData.usage_goal) * 100.0) + "%")")
+                                        Text("\(String(format  : "%.0f" , Double(getFinalCost())/Double(recordData.usage_goal) * 100.0) + "%")")
                                             .font(.title)
                                             .bold(true)
                                     }
@@ -183,7 +187,7 @@ struct HomePage: View {
                                             )
                                             .multilineTextAlignment(.trailing)
                                             .frame(maxWidth : .infinity, alignment : .trailing)
-                                        Text("Rp \( Int32(usage))")
+                                        Text("Rp \( Int32(getFinalCost()))")
                                             .foregroundStyle(
                                                 Color("ShadedGreen")
                                             )
