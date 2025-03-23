@@ -114,6 +114,18 @@ struct HomePage: View {
         return Int(Double(usage + 66704) * 1.08)
     }
     
+    func Greetings() -> String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: Date())
+        if hour >= 3 && hour < 12 {
+            return "Good Morning"
+        } else if hour >= 12 && hour < 16 {
+            return "Good Afternoon"
+        } else {
+            return "Good Evening"
+        }
+    }
+    
     // navigation
     @State private var path = NavigationPath()
     
@@ -128,7 +140,7 @@ struct HomePage: View {
 
                 ScrollView{
                     VStack(spacing : 0) {
-                        Text("Good Morning")
+                        Text(Greetings())
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.system(.largeTitle, weight: .bold))
                             .padding(.top, 20)
