@@ -6,20 +6,36 @@
 //
 import CoreData
 
+class DeviceData: ObservableObject, Identifiable, Equatable {
+    static func == (lhs: DeviceData, rhs: DeviceData) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.name == rhs.name &&
+               lhs.power == rhs.power &&
+               lhs.time == rhs.time
+    }
+
+    var id: Int64
+    @Published var name: String
+    @Published var power: Int
+    @Published var time: Float
+
+    init(id: Int64, name: String, power: Int, time: Float) {
+        self.id = id
+        self.name = name
+        self.power = power
+        self.time = time
+    }
+}
 
 class Device: ObservableObject {
     var context = CoreDataStack.shared.context
-    @Published var data: [DeviceData] = []
         
-    init() {
-        loadData()
-    }
     
-    func loadData() {
+    func loadData(callback : @escaping (([DeviceData]) -> Void)) {
         DispatchQueue.global(qos: .background).async {
             let fetchedData = self.getDailyUsage()
             DispatchQueue.main.async {
-                self.data = fetchedData.map { daily in
+                var data = fetchedData.map { daily in
                     DeviceData(
                         id: daily.id ,
                         name: daily.device_name ?? "",
@@ -28,12 +44,8 @@ class Device: ObservableObject {
                     )
                 }
                 
-                self.data.forEach{ da in
-                    print(da.name)
-                }
-                if(self.data.count == 0 ){
-                    self.createData(data: [DeviceData(id : 0, name : "" , power : 0, time : 0.0)])
-                }
+                callback(data)
+               
             }
         }
     }
@@ -68,19 +80,6 @@ class Device: ObservableObject {
             print("Data batch berhasil disimpan!")
         } catch {
             print("Gagal menyimpan data batch: \(error.localizedDescription)")
-        }
-    }
-    
-    
-    public func createData(data : [DeviceData]){
-        DispatchQueue.global(qos: .background).async {
-            self.context.perform{
-                for devic in data{
-                    devic.id = Int64(self.getNextID())
-                    self.data.append(devic)
-                }
-            }
-            
         }
     }
     
@@ -124,28 +123,20 @@ class Device: ObservableObject {
     }
     
     
-    func deleteDailyUsage(id: Int) {
-        let index = id
-        print("\(index) \(data.count)")
-
-        if index >= 0 && index < data.count {
-            let request: NSFetchRequest<Devices> = Devices.fetchRequest()
-            request.predicate = NSPredicate(format: "id == %d", data[index].id)
-            do{
-                let result = try context.fetch(request)
-                if let deleteData = result.first{
-                    self.context.delete(deleteData)
-                    self.saveContext()
-                }
-            }catch{
-                print("Error : Cannot delete data !")
+    func deleteDailyUsage(index: Int64) {
+        let request: NSFetchRequest<Devices> = Devices.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %d", index as CVarArg)
+        do{
+            let result = try context.fetch(request)
+            if let deleteData = result.first{
+                self.context.delete(deleteData)
+                self.saveContext()
             }
-            
-            data.remove(at: index)
-
-        } else {
-            print("Error: Index out of range")
+        }catch{
+            print("Error : Cannot delete data !")
         }
+            
+          
     }
 }
 
