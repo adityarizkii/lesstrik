@@ -101,7 +101,7 @@ struct DailyUsageView: View {
 
                     if !DailyData.data.isEmpty {
                         ForEach(DailyData.data.indices, id: \.self) { index in
-                            if index < DailyData.data.count {  // Hindari index out of range
+                            if index < DailyData.data.count {  
                                 CircularProgressView(progress: 1, color: Color("Yellow"), padding: 3, textColor: Color("DarkestYellow")) {
                                     Text("\(index + 1)")
                                 }

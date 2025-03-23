@@ -15,7 +15,7 @@ struct LesstrikApp: App {
     
     var body: some Scene {
         WindowGroup {
-            HomePage()
+            MainPage()
                 .environmentObject(route)
         }
     }
