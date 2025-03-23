@@ -8,9 +8,10 @@ struct DailyUsageView: View {
     @State var count: Int64 = 1
     @State var showDetail = false
     @StateObject var device = Device()
+    @StateObject var daily = DailyUsage()
     @FocusState var focusField: Bool
     @State var data: [DeviceData] = []
-    @Binding var usageID : UUID
+    @Binding var usageData : DailyUsageModel
 
     
     let templateRow = [
@@ -29,6 +30,7 @@ struct DailyUsageView: View {
         data.forEach { value in
             total += Float(value.power) * value.time
         }
+       
         totalCost = Int(total * 1.262)
     }
     
@@ -67,7 +69,7 @@ struct DailyUsageView: View {
                             name: "",
                             power: 0,
                             time: 0.0,
-                            usage_id : usageID
+                            usage_id : usageData.id
                         )
                     )
                     count += 1
@@ -163,6 +165,13 @@ struct DailyUsageView: View {
             VStack {
                 Button(action: {
                     device.updateDailyUsage(data: data)
+                    daily.update(data : DailyUsageModel(
+                        id: usageData.id,
+                        date: usageData.date,
+                        totalCost: Int32(totalCost)
+                    )){ error, message in
+                        print(message)
+                    }
                 }) {
                     Text("Save")
                         .padding(10)
@@ -182,8 +191,8 @@ struct DailyUsageView: View {
         .background()
         .animation(.easeIn(duration: 2), value: route.currentPage)
         .onAppear {
-            device.getDeviceByUsage(id: usageID){ result in
-                print(usageID)
+            device.getDeviceByUsage(id: usageData.id){ result in
+                print(usageData.id)
                 data = result
                 calculateTotal()
 
@@ -213,6 +222,13 @@ struct DailyUsageView: View {
 }
 
 #Preview {
-    DailyUsageView(usageID: .constant(UUID()))
-        .environmentObject(AppRoute())
+    DailyUsageView(
+        usageData: .constant(
+            DailyUsageModel(
+                id : UUID(),
+                date : Date.now,
+                totalCost : 0
+            )
+        )
+    ).environmentObject(AppRoute())
 }

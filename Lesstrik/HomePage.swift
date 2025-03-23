@@ -33,20 +33,24 @@ struct HomePage: View {
     @EnvironmentObject var route : AppRoute
     @State var show = false
     @State var usage = 200000
+    @State var averageUsage = 0
     @State var currentMonth = Date().monthInt
     var dailyUsage = DailyUsage()
     var daily:DailyUsageModel = DailyUsageModel(
         id: UUID(), date: Date.now, totalCost: 0
     )
+    var dailyUsageData = [DailyUsageModel]()
     var formater = DateFormatter()
+    var yearFormatter = DateFormatter()
     @State var currentPeriod:String = ""
     @State var record = Record()
-    @Binding var usageID: UUID
+    @Binding var usageData: DailyUsageModel
     @State var recordData : RecordType = RecordType(
         id : UUID(),
         period : "",
         usage_goal : Int32(0)
     )
+    @State var costData : [Double] = Array(repeating : 0.0, count : 33)
 
 
     
@@ -58,7 +62,7 @@ struct HomePage: View {
                     daily.id = result!.id
                     daily.date = result!.date
                     daily.totalCost = result!.totalCost
-                    usageID = result!.id
+                    usageData = result!
                     callback()
                     print("Daily : Berhasil mengambil data !")
                     return
@@ -79,7 +83,7 @@ struct HomePage: View {
                                 daily.id = result!.id
                                 daily.date = result!.date
                                 daily.totalCost = result!.totalCost
-                                usageID = result!.id
+                                usageData = result!
                                 callback()
 
                                 return
@@ -174,7 +178,7 @@ struct HomePage: View {
                             Text("Avg. Usage :")
                                 .font(.headline)
                                 .frame(maxWidth : .infinity, alignment : .leading)
-                            Text("Rp \( Int32(recordData.usage_goal)  / Int32(30))")
+                            Text("Rp \( Int32(averageUsage))")
                                 .frame(maxWidth : .infinity, alignment : .leading)
                                 .font(.title2)
                                 .bold(true)
@@ -233,7 +237,12 @@ struct HomePage: View {
                                         .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : Color("DarkYellow"))
                                     
                                     if date.startOfDay >= day.startOfDay {
-                                        Text("10k")
+                                        Text(
+                                            ( String(
+                                                format : "%.1f",
+                                            costData[Int(day.formatted(.dateTime.day())) ?? 0]
+                                            )) + "k"
+                                        )
                                             .font(.caption2)
                                             .foregroundStyle(Color("Green"))
                                             .bold(true)
@@ -248,7 +257,7 @@ struct HomePage: View {
                                 .onTapGesture{
                                     fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
                                         print(addDays(to: day, days: 1))
-                                        print(usageID)
+                                        print("idx :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
                                         route.currentPage = .dailyUsage
                                     }
                                    
@@ -316,18 +325,36 @@ struct HomePage: View {
             }
             .onAppear {
                 self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
+                self.yearFormatter.setLocalizedDateFormatFromTemplate("yyyy")
                 self.currentPeriod = self.formater.string(from : Date.now)
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
                 days = date.calendarDisplayDays
                 record.getRecords(period : self.currentPeriod){ value in
                     if value != nil {
                         recordData = value!
-                        usageID = value!.id
+                        usageData.id = value!.id
                     }
                 }
                 
                 fetchDailyUsage(date : getCurrentDateAtMidnight()){
                     
+                }
+                
+                dailyUsage.fetchDailyUsagesByMonth(
+                    year : Int(yearFormatter.string(from : Date.now)) ?? 0, month : self.currentMonth
+                ){ result in
+                    var arr = Array(repeating : 0.0, count : 33)
+                    if result?.count ?? 0 > 0 {
+                        let calendar = Calendar.current
+                        result?.forEach { (item) in
+                            
+                            arr[calendar.component(.day, from : item.date)-1] = Double(item.totalCost)/1000
+                            averageUsage = (averageUsage  + Int(item.totalCost))/2
+                            print("[\(calendar.component(.day, from : item.date))]Tgl : \(item.date)  \(item.totalCost)")
+                        }
+                    }
+                    costData = arr
+
                 }
                 
                 print("Sekarang : \(String(describing: self.recordData.usage_goal))")
@@ -373,6 +400,14 @@ struct HomePage: View {
     @Previewable @StateObject var route = AppRoute()
 
     HomePage(
-        usageID : .constant(UUID()))
-        .environmentObject(route)
+        usageData :
+                .constant(
+                    DailyUsageModel(
+                        id : UUID(),
+                        date : Date.now,
+                        totalCost : 0
+                    )
+                )
+    )
+    .environmentObject(route)
 }

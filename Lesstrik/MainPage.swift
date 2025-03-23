@@ -9,7 +9,12 @@ import SwiftUI
 struct MainPage: View {
     @EnvironmentObject var route: AppRoute
     @State private var offset = CGSize.zero
-    @State var usageID : UUID = UUID()
+    @State var usageData : DailyUsageModel =
+        DailyUsageModel(
+            id : UUID(),
+            date : Date.now,
+            totalCost : 0
+        )
     
     var body: some View {
         
@@ -18,9 +23,9 @@ struct MainPage: View {
             switch route.currentPage {
                 
                 case .dailyUsage:
-                DailyUsageView(usageID : $usageID)
+                DailyUsageView(usageData : $usageData)
                 default:
-                HomePage(usageID : $usageID)
+                HomePage(usageData : $usageData)
             }
            
         }.gesture(

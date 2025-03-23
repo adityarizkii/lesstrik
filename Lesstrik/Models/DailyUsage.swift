@@ -43,6 +43,43 @@ class DailyUsage : ObservableObject{
         }
     }
     
+    func fetchDailyUsagesByMonth(year: Int, month: Int, callback: @escaping (([DailyUsageModel]?) -> Void)) {
+        DispatchQueue.global(qos: .background).async {
+            self.context.perform {
+                let request: NSFetchRequest<DailyUsages> = DailyUsages.fetchRequest()
+                
+                let calendar = Calendar.current
+                
+                var startComponents = DateComponents()
+                startComponents.year = year
+                startComponents.month = month
+                startComponents.day = 1
+                let startOfMonth = calendar.date(from: startComponents)!
+
+                let range = calendar.range(of: .day, in: .month, for: startOfMonth)!
+                var endComponents = startComponents
+                endComponents.day = range.count
+                let endOfMonth = calendar.date(from: endComponents)!
+
+                request.predicate = NSPredicate(format: "date >= %@ AND date <= %@", startOfMonth as NSDate, endOfMonth as NSDate)
+
+                if let result = try? self.context.fetch(request) {
+                    let dailyUsageModel = result.map { val in
+                        DailyUsageModel(
+                            id: val.id ?? UUID(),
+                            date: val.date ?? Date(),
+                            totalCost: val.totalCost
+                        )
+                    }
+                    callback(dailyUsageModel)
+                } else {
+                    callback([])
+                }
+            }
+        }
+    }
+
+    
     func getDailyUsagesByDate(date: Date, callback: @escaping ((DailyUsageModel?) -> Void)) {
         DispatchQueue.global(qos: .background).async {
             self.context.perform {
@@ -70,6 +107,7 @@ class DailyUsage : ObservableObject{
     }
 
     
+    //fungsi buat nambahin data daily usage
     func create(data: DailyUsageModel, callback : @escaping ((Bool, String) -> Void)){
         DispatchQueue.global(qos : .background).async{
             self.context.perform{
@@ -90,6 +128,31 @@ class DailyUsage : ObservableObject{
                 }
             }
             
+        }
+    }
+    
+    //Fungsi buat update data daily usage
+    func update(data : DailyUsageModel, callback : @escaping ((Bool, String) -> Void)){
+        DispatchQueue.global(qos : .background).async{
+            self.context.perform{
+                let request:NSFetchRequest<DailyUsages> = DailyUsages.fetchRequest()
+                request.predicate = NSPredicate(format: "id == %@", data.id as CVarArg )
+                
+                do{
+                    let result = try self.context.fetch(request)
+                    
+                    if result.count > 0 {
+                        let updateData = result[0]
+                        updateData.date = data.date
+                        updateData.totalCost = data.totalCost
+                        callback(false , "Berhasil mengupdate data !")
+                        return
+                    }
+                    callback(true, "Data tidak ditemukan !")
+                }catch{
+                    callback(true, "Error Gagal mengupdate data :  \(error.localizedDescription)")
+                }
+            }
         }
     }
     
