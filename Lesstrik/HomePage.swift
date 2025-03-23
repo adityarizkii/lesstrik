@@ -26,6 +26,18 @@ func getCurrentDateAtMidnight(date : Date = Date()) -> Date? {
     return calendar.date(from: components)
 }
 
+func Greeting() -> String{
+    let calender = Calendar.current
+    let hour = calender.component(.hour, from: Date())
+    if hour < 12{
+        return "Good Morning"
+    }else if hour < 16{
+        return "Good Afternoon"
+    }else {
+        return "Good Evening"
+    }
+}
+
 
 struct HomePage: View {
     // swiftdata
@@ -110,7 +122,7 @@ struct HomePage: View {
         NavigationStack(path: $path) {
             ZStack{
                 VStack {
-                    Text("Good Morning")
+                    Text(Greeting())
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.system(.largeTitle, weight: .bold))
                         .padding(.top, 20)
@@ -273,7 +285,7 @@ struct HomePage: View {
                         //path.append("Calculate")
                         route.currentPage = .dailyUsage
                     } label: {
-                        Text("Add Daily Usage")
+                        Text("Check in Today")
                             .foregroundStyle(Color("ShadedGreen"))
                             .font(.system(.title3, weight: .bold))
                     }
