@@ -35,7 +35,7 @@ class Record:ObservableObject{
                 let request : NSFetchRequest<Records> = Records.fetchRequest()
                 
                 if let result = try? self.context.fetch(request){
-                     var data = result.map{ value in
+                    let data = result.map{ value in
                         RecordType(
                             id : value.id ?? UUID(),
                             period : value.period ?? "" ,
@@ -58,7 +58,7 @@ class Record:ObservableObject{
                 let request: NSFetchRequest<Records> = Records.fetchRequest()
                 request.predicate = NSPredicate(format: "period == %@", period as CVarArg)
 
-                if let result = try? self.context.fetch(request), let current = result.first {
+                if let result = try? self.context.fetch(request), let _ = result.first {
                     DispatchQueue.main.async {
                         callback(
                             RecordType(

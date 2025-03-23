@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct BillDummy: Identifiable {
     let id = UUID()
@@ -15,6 +16,15 @@ struct BillDummy: Identifiable {
 }
 
 
+func getCurrentDateAtMidnight(date : Date = Date()) -> Date? {
+    let calendar = Calendar.current
+
+    // Mengambil komponen tanggal (tahun, bulan, hari)
+    let components = calendar.dateComponents([.year, .month, .day], from: date)
+
+    // Membuat Date dengan jam 00:00:00
+    return calendar.date(from: components)
+}
 
 
 struct HomePage: View {
@@ -23,26 +33,70 @@ struct HomePage: View {
     @EnvironmentObject var route : AppRoute
     @State var show = false
     @State var usage = 200000
+    @State var averageUsage = 0
     @State var currentMonth = Date().monthInt
     var dailyUsage = DailyUsage()
+    var daily:DailyUsageModel = DailyUsageModel(
+        id: UUID(), date: Date.now, totalCost: 0
+    )
+    var dailyUsageData = [DailyUsageModel]()
     var formater = DateFormatter()
+    var yearFormatter = DateFormatter()
     @State var currentPeriod:String = ""
     @State var record = Record()
+    @Binding var usageData: DailyUsageModel
     @State var recordData : RecordType = RecordType(
         id : UUID(),
         period : "",
         usage_goal : Int32(0)
     )
+    @State var costData : [Double] = Array(repeating : 0.0, count : 33)
 
 
-
-//    @Query private var bills: [Bill]
     
-    //dummy data
-//    private var billsDummy: [BillDummy] = [
-//        BillDummy(date: Date.now, totalCost: 55000),
-//        BillDummy(date: Date.now.addingTimeInterval(-86400), totalCost: 40000)
-//    ]
+    func fetchDailyUsage(date : Date?, callback : @escaping (() -> Void)){
+        if date != nil {
+            
+            self.dailyUsage.getDailyUsagesByDate(date: date ?? Date.now) { result in
+                if result != nil {
+                    daily.id = result!.id
+                    daily.date = result!.date
+                    daily.totalCost = result!.totalCost
+                    usageData = result!
+                    callback()
+                    print("Daily : Berhasil mengambil data !")
+                    return
+                }
+                
+                self.dailyUsage.create(
+                    data:
+                        DailyUsageModel(
+                            id : UUID(),
+                            date : date ?? Date.now,
+                            totalCost : 0
+                        )
+                ) { error, message in
+                    if !error {
+                        self.dailyUsage.getDailyUsagesByDate(date: date ?? Date.now) { result in
+                            
+                            if result != nil {
+                                daily.id = result!.id
+                                daily.date = result!.date
+                                daily.totalCost = result!.totalCost
+                                usageData = result!
+                                callback()
+
+                                return
+                            }
+                        }
+                    }
+                    
+                    print("Daily : \(String(describing: error)), \(String(describing: message))")
+                }
+            }
+        }
+        
+    }
     
     // navigation
     @State private var path = NavigationPath()
@@ -124,7 +178,7 @@ struct HomePage: View {
                             Text("Avg. Usage :")
                                 .font(.headline)
                                 .frame(maxWidth : .infinity, alignment : .leading)
-                            Text("Rp \( Int32(recordData.usage_goal)  / Int32(30))")
+                            Text("Rp \( Int32(averageUsage))")
                                 .frame(maxWidth : .infinity, alignment : .leading)
                                 .font(.title2)
                                 .bold(true)
@@ -183,7 +237,12 @@ struct HomePage: View {
                                         .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : Color("DarkYellow"))
                                     
                                     if date.startOfDay >= day.startOfDay {
-                                        Text("10k")
+                                        Text(
+                                            ( String(
+                                                format : "%.1f",
+                                            costData[Int(day.formatted(.dateTime.day())) ?? 0]
+                                            )) + "k"
+                                        )
                                             .font(.caption2)
                                             .foregroundStyle(Color("Green"))
                                             .bold(true)
@@ -193,18 +252,15 @@ struct HomePage: View {
                                             )
                                             .offset(y :  -8)
                                     }
-    //                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
-    //                                    Text(formatToK(bill.totalCost))
-    //                                        .font(.system(.caption2, weight: .medium))
-    //                                        .frame(maxWidth: .infinity)
-    //                                        .padding(.vertical, 4)
-    //                                        .overlay(
-    //                                            RoundedRectangle(cornerRadius: 4)
-    //                                                .fill(.blue.opacity(0.3))
-    //                                        )
-    //                                } else {
-    //                                    Text("-")
-    //                                }
+
+                                }
+                                .onTapGesture{
+                                    fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
+                                        print(addDays(to: day, days: 1))
+                                        print("idx :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
+                                        route.currentPage = .dailyUsage
+                                    }
+                                   
                                 }
                             }
                         }
@@ -214,7 +270,7 @@ struct HomePage: View {
                     Spacer()
                     
                     Button {
-                        path.append("Calculate")
+                        //path.append("Calculate")
                         route.currentPage = .dailyUsage
                     } label: {
                         Text("Add Daily Usage")
@@ -269,14 +325,38 @@ struct HomePage: View {
             }
             .onAppear {
                 self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
+                self.yearFormatter.setLocalizedDateFormatFromTemplate("yyyy")
                 self.currentPeriod = self.formater.string(from : Date.now)
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
                 days = date.calendarDisplayDays
                 record.getRecords(period : self.currentPeriod){ value in
                     if value != nil {
                         recordData = value!
+                        usageData.id = value!.id
                     }
                 }
+                
+                fetchDailyUsage(date : getCurrentDateAtMidnight()){
+                    
+                }
+                
+                dailyUsage.fetchDailyUsagesByMonth(
+                    year : Int(yearFormatter.string(from : Date.now)) ?? 0, month : self.currentMonth
+                ){ result in
+                    var arr = Array(repeating : 0.0, count : 33)
+                    if result?.count ?? 0 > 0 {
+                        let calendar = Calendar.current
+                        result?.forEach { (item) in
+                            
+                            arr[calendar.component(.day, from : item.date)-1] = Double(item.totalCost)/1000
+                            averageUsage = (averageUsage  + Int(item.totalCost))/2
+                            print("[\(calendar.component(.day, from : item.date))]Tgl : \(item.date)  \(item.totalCost)")
+                        }
+                    }
+                    costData = arr
+
+                }
+                
                 print("Sekarang : \(String(describing: self.recordData.usage_goal))")
 
             }
@@ -320,6 +400,14 @@ struct HomePage: View {
     @Previewable @StateObject var route = AppRoute()
 
     HomePage(
+        usageData :
+                .constant(
+                    DailyUsageModel(
+                        id : UUID(),
+                        date : Date.now,
+                        totalCost : 0
+                    )
+                )
     )
-        .environmentObject(route)
+    .environmentObject(route)
 }
