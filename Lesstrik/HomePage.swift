@@ -26,6 +26,18 @@ func getCurrentDateAtMidnight(date : Date = Date()) -> Date? {
     return calendar.date(from: components)
 }
 
+func Greeting() -> String{
+    let calender = Calendar.current
+    let hour = calender.component(.hour, from: Date())
+    if hour < 12{
+        return "Good Morning"
+    }else if hour < 16{
+        return "Good Afternoon"
+    }else {
+        return "Good Evening"
+    }
+}
+
 
 struct HomePage: View {
     // swiftdata
@@ -109,6 +121,64 @@ struct HomePage: View {
     var body: some View {
         NavigationStack(path: $path) {
             ZStack{
+<<<<<<< HEAD
+                VStack {
+                    Text(Greeting())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.largeTitle, weight: .bold))
+                        .padding(.top, 20)
+                    HStack{
+                        
+                        ZStack{
+                            CircularProgressView(
+                                progress : Double(usage)/Double(recordData.usage_goal ),
+                                color : Color("TintedGreen"),
+                                padding : 1,
+                                thick : 20
+                            ){
+                                VStack{
+                                    Text("Rp")
+                                        .font(.title2)
+                                        .bold(true)
+                                    Text("\(usage)")
+                                        .font(.subheadline)
+                                        .bold(true)
+                                        .foregroundStyle(Color("TintedGreen"))
+                                    Text("\(recordData.usage_goal  )")
+                                        .font(.caption)
+                                }
+                              
+                            }
+                            .padding(.vertical,20)
+                            .padding(.leading, 10)
+                            .frame(maxHeight : 150)
+                            
+                             
+                            Button (action : {
+                                print("Set")
+                                show = true
+                            }){
+                                Text("Set Goal")
+                                    .font(.system(.caption))
+                                    .foregroundStyle(.black)
+                                    .bold(true)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical,8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 50)
+                                    .fill(Color("Yellow"))
+                            )
+                            .frame(alignment : .bottom)
+                            .offset(y:50)
+                            .padding(.leading, 10)
+
+                        }
+                        .frame(alignment : .bottom)
+                        
+                        Spacer()
+                        
+=======
                 ScrollView{
                     VStack(spacing : 0) {
                         Text("Good Morning")
@@ -116,6 +186,7 @@ struct HomePage: View {
                             .font(.system(.largeTitle, weight: .bold))
                             .padding(.top, 20)
                             .padding(.bottom , 20)
+>>>>>>> 69617658d03161e69fa77a91dfbac78c0c25fb0d
                         VStack{
                             
                             ZStack{
@@ -300,6 +371,26 @@ struct HomePage: View {
                                 }
                             }
                         }
+<<<<<<< HEAD
+                    }
+                    .padding(.horizontal,0)
+                    
+                    Spacer()
+                    
+                    Button {
+                        //path.append("Calculate")
+                        route.currentPage = .dailyUsage
+                    } label: {
+                        Text("Check in Today")
+                            .foregroundStyle(Color("ShadedGreen"))
+                            .font(.system(.title3, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(
+                            cornerRadius : 50
+=======
                         .padding(.horizontal,0)
                         
                         Spacer()
@@ -319,6 +410,7 @@ struct HomePage: View {
                                 cornerRadius : 50
                             )
                             .fill(Color("Yellow"))
+>>>>>>> 69617658d03161e69fa77a91dfbac78c0c25fb0d
                         )
                     }
                     
