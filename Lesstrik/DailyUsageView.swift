@@ -1,33 +1,16 @@
 import SwiftUI
 
-class DeviceData: ObservableObject, Identifiable, Equatable {
-    static func == (lhs: DeviceData, rhs: DeviceData) -> Bool {
-        return lhs.id == rhs.id &&
-               lhs.name == rhs.name &&
-               lhs.power == rhs.power &&
-               lhs.time == rhs.time
-    }
 
-    var id: Int64
-    @Published var name: String
-    @Published var power: Int
-    @Published var time: Float
-
-    init(id: Int64, name: String, power: Int, time: Float) {
-        self.id = id
-        self.name = name
-        self.power = power
-        self.time = time
-    }
-}
 
 struct DailyUsageView: View {
     @EnvironmentObject var route: AppRoute
     @State var offset = CGSize.zero
     @State var count: Int64 = 1
     @State var showDetail = false
-    @StateObject var DailyData = Device()
+    @StateObject var device = Device()
     @FocusState var focusField: Bool
+    @State var data: [DeviceData] = []
+
     
     let templateRow = [
         GridItem(.fixed(30)),
@@ -42,7 +25,7 @@ struct DailyUsageView: View {
 
     func calculateTotal() {
         var total = Float(0)
-        DailyData.data.forEach { value in
+        data.forEach { value in
             total += Float(value.power) * value.time
         }
         totalCost = Int(total * 1.262)
@@ -76,8 +59,15 @@ struct DailyUsageView: View {
                     .foregroundStyle(Color("DarkestYellow"))
                 Spacer()
                 Button(action: {
-                    DailyData.updateDailyUsage(data : DailyData.data)
-                    DailyData.createData(data: [DeviceData(id: count, name: "", power: 0, time: 0.0)])
+                    device.updateDailyUsage(data : data)
+                    data.append(
+                        DeviceData(
+                            id: device.getNextID(),
+                            name: "",
+                            power: 0,
+                            time: 0.0
+                        )
+                    )
                     count += 1
                     showDetail.toggle()
                 }) {
@@ -99,24 +89,24 @@ struct DailyUsageView: View {
                             .foregroundStyle(Color("DarkestYellow"))
                     }
 
-                    if !DailyData.data.isEmpty {
-                        ForEach(DailyData.data.indices, id: \.self) { index in
-                            if index < DailyData.data.count {  
+                    if !data.isEmpty {
+                        ForEach(data.indices, id: \.self) { index in
+                            if index < data.count {
                                 CircularProgressView(progress: 1, color: Color("Yellow"), padding: 3, textColor: Color("DarkestYellow")) {
                                     Text("\(index + 1)")
                                 }
 
-                                TextField("Device Name", text: $DailyData.data[index].name)
+                                TextField("Device Name", text: $data[index].name)
                                     .padding(5)
                                     .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray.opacity(0.5)))
                                     .frame(maxWidth: .infinity)
                                     .focused($focusedIndex, equals: index)  // Tambahkan ini
 
                                 TextField("Watt", text: Binding(
-                                    get: { String(DailyData.data[index].power) == "0" ? "" : String(DailyData.data[index].power) },
+                                    get: { String(data[index].power) == "0" ? "" : String(data[index].power) },
                                     set: { val in
                                         if let intValue = Int(val) {
-                                            DailyData.data[index].power = intValue
+                                            data[index].power = intValue
                                             calculateTotal()
                                         }
                                     }
@@ -127,10 +117,10 @@ struct DailyUsageView: View {
                                 .focused($focusedIndex, equals: index)
 
                                 TextField("Hrs", text: Binding(
-                                    get: { String(DailyData.data[index].time) == "0.0" ? "" : String(DailyData.data[index].time) },
+                                    get: { String(data[index].time) == "0.0" ? "" : String(data[index].time) },
                                     set: { val in
                                         if let floatValue = Float(val) {
-                                            DailyData.data[index].time = floatValue
+                                            data[index].time = floatValue
                                             calculateTotal()
                                         }
                                     }
@@ -143,7 +133,8 @@ struct DailyUsageView: View {
                                 Button(action: {
                                     focusedIndex = nil
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        DailyData.deleteDailyUsage(id : index)
+                                        device.deleteDailyUsage(index : data[index].id)
+                                        data.remove(at: index)
                                         showDetail = false
                                     }
                                 }) {
@@ -158,7 +149,7 @@ struct DailyUsageView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
-                        .animation(.easeIn(duration: 0.2), value: DailyData.data.count)
+                        .animation(.easeIn(duration: 0.2), value: data.count)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -169,7 +160,7 @@ struct DailyUsageView: View {
 
             VStack {
                 Button(action: {
-                    DailyData.updateDailyUsage(data: DailyData.data)
+                    device.updateDailyUsage(data: data)
                 }) {
                     Text("Save")
                         .padding(10)
@@ -189,10 +180,13 @@ struct DailyUsageView: View {
         .background()
         .animation(.easeIn(duration: 2), value: route.currentPage)
         .onAppear {
-            DailyData.loadData()
-            calculateTotal()
+            device.loadData(){ result in
+                data = result
+                calculateTotal()
+
+            }
         }
-        .onReceive(DailyData.objectWillChange) { _ in
+        .onReceive(device.objectWillChange) { _ in
             calculateTotal()
         }
         .gesture(
