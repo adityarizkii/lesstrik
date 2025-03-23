@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct BillDummy: Identifiable {
     let id = UUID()
@@ -15,6 +16,15 @@ struct BillDummy: Identifiable {
 }
 
 
+func getCurrentDateAtMidnight(date : Date = Date()) -> Date? {
+    let calendar = Calendar.current
+
+    // Mengambil komponen tanggal (tahun, bulan, hari)
+    let components = calendar.dateComponents([.year, .month, .day], from: date)
+
+    // Membuat Date dengan jam 00:00:00
+    return calendar.date(from: components)
+}
 
 
 struct HomePage: View {
@@ -25,9 +35,13 @@ struct HomePage: View {
     @State var usage = 200000
     @State var currentMonth = Date().monthInt
     var dailyUsage = DailyUsage()
+    var daily:DailyUsageModel = DailyUsageModel(
+        id: UUID(), date: Date.now, totalCost: 0
+    )
     var formater = DateFormatter()
     @State var currentPeriod:String = ""
     @State var record = Record()
+    @Binding var usageID: UUID
     @State var recordData : RecordType = RecordType(
         id : UUID(),
         period : "",
@@ -35,14 +49,50 @@ struct HomePage: View {
     )
 
 
-
-//    @Query private var bills: [Bill]
     
-    //dummy data
-//    private var billsDummy: [BillDummy] = [
-//        BillDummy(date: Date.now, totalCost: 55000),
-//        BillDummy(date: Date.now.addingTimeInterval(-86400), totalCost: 40000)
-//    ]
+    func fetchDailyUsage(date : Date?, callback : @escaping (() -> Void)){
+        if date != nil {
+            
+            self.dailyUsage.getDailyUsagesByDate(date: date ?? Date.now) { result in
+                if result != nil {
+                    daily.id = result!.id
+                    daily.date = result!.date
+                    daily.totalCost = result!.totalCost
+                    usageID = result!.id
+                    callback()
+                    print("Daily : Berhasil mengambil data !")
+                    return
+                }
+                
+                self.dailyUsage.create(
+                    data:
+                        DailyUsageModel(
+                            id : UUID(),
+                            date : date ?? Date.now,
+                            totalCost : 0
+                        )
+                ) { error, message in
+                    if !error {
+                        self.dailyUsage.getDailyUsagesByDate(date: date ?? Date.now) { result in
+                            
+                            if result != nil {
+                                daily.id = result!.id
+                                daily.date = result!.date
+                                daily.totalCost = result!.totalCost
+                                usageID = result!.id
+                                callback()
+
+                                return
+                            }
+                        }
+                    }
+                    
+                    print("Daily : \(String(describing: error)), \(String(describing: message))")
+                }
+            }
+        }
+        
+    }
     
     // navigation
     @State private var path = NavigationPath()
@@ -193,18 +243,15 @@ struct HomePage: View {
                                             )
                                             .offset(y :  -8)
                                     }
-    //                                if let bill = bills.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
-    //                                    Text(formatToK(bill.totalCost))
-    //                                        .font(.system(.caption2, weight: .medium))
-    //                                        .frame(maxWidth: .infinity)
-    //                                        .padding(.vertical, 4)
-    //                                        .overlay(
-    //                                            RoundedRectangle(cornerRadius: 4)
-    //                                                .fill(.blue.opacity(0.3))
-    //                                        )
-    //                                } else {
-    //                                    Text("-")
-    //                                }
+
+                                }
+                                .onTapGesture{
+                                    fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
+                                        print(addDays(to: day, days: 1))
+                                        print(usageID)
+                                        route.currentPage = .dailyUsage
+                                    }
+                                   
                                 }
                             }
                         }
@@ -214,7 +261,7 @@ struct HomePage: View {
                     Spacer()
                     
                     Button {
-                        path.append("Calculate")
+                        //path.append("Calculate")
                         route.currentPage = .dailyUsage
                     } label: {
                         Text("Add Daily Usage")
@@ -275,8 +322,14 @@ struct HomePage: View {
                 record.getRecords(period : self.currentPeriod){ value in
                     if value != nil {
                         recordData = value!
+                        usageID = value!.id
                     }
                 }
+                
+                fetchDailyUsage(date : getCurrentDateAtMidnight()){
+                    
+                }
+                
                 print("Sekarang : \(String(describing: self.recordData.usage_goal))")
 
             }
@@ -320,6 +373,6 @@ struct HomePage: View {
     @Previewable @StateObject var route = AppRoute()
 
     HomePage(
-    )
+        usageID : .constant(UUID()))
         .environmentObject(route)
 }

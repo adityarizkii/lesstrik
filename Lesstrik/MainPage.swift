@@ -9,6 +9,8 @@ import SwiftUI
 struct MainPage: View {
     @EnvironmentObject var route: AppRoute
     @State private var offset = CGSize.zero
+    @State var usageID : UUID = UUID()
+    
     var body: some View {
         
         ZStack{
@@ -16,9 +18,9 @@ struct MainPage: View {
             switch route.currentPage {
                 
                 case .dailyUsage:
-                    DailyUsageView()
+                DailyUsageView(usageID : $usageID)
                 default:
-                HomePage()
+                HomePage(usageID : $usageID)
             }
            
         }.gesture(
@@ -42,8 +44,9 @@ struct MainPage: View {
 }
 
 #Preview {
-   
-    HomePage()
-        .environmentObject(AppRoute())
+    @Previewable @State var route = AppRoute()
+
+    MainPage()
+        .environmentObject(route)
        
 }

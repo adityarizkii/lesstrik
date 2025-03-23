@@ -10,6 +10,7 @@ struct DailyUsageView: View {
     @StateObject var device = Device()
     @FocusState var focusField: Bool
     @State var data: [DeviceData] = []
+    @Binding var usageID : UUID
 
     
     let templateRow = [
@@ -65,7 +66,8 @@ struct DailyUsageView: View {
                             id: device.getNextID(),
                             name: "",
                             power: 0,
-                            time: 0.0
+                            time: 0.0,
+                            usage_id : usageID
                         )
                     )
                     count += 1
@@ -180,7 +182,8 @@ struct DailyUsageView: View {
         .background()
         .animation(.easeIn(duration: 2), value: route.currentPage)
         .onAppear {
-            device.loadData(){ result in
+            device.getDeviceByUsage(id: usageID){ result in
+                print(usageID)
                 data = result
                 calculateTotal()
 
@@ -210,6 +213,6 @@ struct DailyUsageView: View {
 }
 
 #Preview {
-    DailyUsageView()
+    DailyUsageView(usageID: .constant(UUID()))
         .environmentObject(AppRoute())
 }
