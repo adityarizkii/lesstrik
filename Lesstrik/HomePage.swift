@@ -14,16 +14,27 @@ struct BillDummy: Identifiable {
     var totalCost: Int
 }
 
+
+
+
 struct HomePage: View {
     // swiftdata
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
     @State var show = false
-    @State var target = 300000
     @State var usage = 200000
     @State var currentMonth = Date().monthInt
     var dailyUsage = DailyUsage()
+    var formater = DateFormatter()
+    @State var currentPeriod:String = ""
     @State var record = Record()
+    @State var recordData : RecordType = RecordType(
+        id : UUID(),
+        period : "",
+        usage_goal : Int32(0)
+    )
+
+
 
 //    @Query private var bills: [Bill]
     
@@ -53,7 +64,7 @@ struct HomePage: View {
                         
                         ZStack{
                             CircularProgressView(
-                                progress : Double(usage)/Double(target),
+                                progress : Double(usage)/Double(recordData.usage_goal ),
                                 color : Color("TintedGreen"),
                                 padding : 1,
                                 thick : 20
@@ -66,7 +77,7 @@ struct HomePage: View {
                                         .font(.subheadline)
                                         .bold(true)
                                         .foregroundStyle(Color("TintedGreen"))
-                                    Text("\(target)")
+                                    Text("\(recordData.usage_goal  )")
                                         .font(.caption)
                                 }
                               
@@ -104,7 +115,7 @@ struct HomePage: View {
                             Text("Daily Goal : ")
                                 .font(.headline)
                                 .frame(maxWidth : .infinity, alignment : .leading)
-                            Text("Rp \(target/30)")
+                            Text("Rp \( Int32(recordData.usage_goal)  / Int32(30))")
                                 .frame(maxWidth : .infinity, alignment : .leading)
                                 .padding(.bottom, 2)
                                 .font(.title2)
@@ -113,7 +124,7 @@ struct HomePage: View {
                             Text("Avg. Usage :")
                                 .font(.headline)
                                 .frame(maxWidth : .infinity, alignment : .leading)
-                            Text("Rp \(target/30)")
+                            Text("Rp \( Int32(recordData.usage_goal)  / Int32(30))")
                                 .frame(maxWidth : .infinity, alignment : .leading)
                                 .font(.title2)
                                 .bold(true)
@@ -219,10 +230,7 @@ struct HomePage: View {
                         .fill(Color("Yellow"))
                     )
                 }
-                .onAppear {
-                    days = date.calendarDisplayDays
-                    print(getDaysInMonth(from: convertToGMT7(date)))
-                }
+               
                 .onChange(of: date) {
                     days = date.calendarDisplayDays
                     print(getDaysInMonth(from: convertToGMT7(date)))
@@ -239,8 +247,18 @@ struct HomePage: View {
                 myAlert(
                     visible : $show,
                     onSave : { value in
-                        if var num = Int(value) {
-                            target = num
+                        if let num = Int(value) {
+                            self.record.addRecord(data: RecordType(
+                                id : recordData.id,
+                                period : self.currentPeriod,
+                                usage_goal : Int32(num)
+                            ))
+                            record.getRecords(period: self.currentPeriod){ value in
+                                if value != nil {
+                                    recordData = value!
+                                }
+                                
+                            }
                         }
                     },
                     onCancel: {
@@ -249,7 +267,19 @@ struct HomePage: View {
                 )
                 
             }
-           
+            .onAppear {
+                self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
+                self.currentPeriod = self.formater.string(from : Date.now)
+                self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
+                days = date.calendarDisplayDays
+                record.getRecords(period : self.currentPeriod){ value in
+                    if value != nil {
+                        recordData = value!
+                    }
+                }
+                print("Sekarang : \(String(describing: self.recordData.usage_goal))")
+
+            }
             
         }
         

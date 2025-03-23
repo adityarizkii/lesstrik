@@ -10,7 +10,7 @@ import CoreData
 class Device: ObservableObject {
     var context = CoreDataStack.shared.context
     @Published var data: [DeviceData] = []
-    
+        
     init() {
         loadData()
     }
