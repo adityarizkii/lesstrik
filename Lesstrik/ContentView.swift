@@ -220,7 +220,6 @@ struct ContentView: View {
                 .onAppear {
                     days = date.calendarDisplayDays
                     print(getDaysInMonth(from: convertToGMT7(date)))
-                    dailyUsage.getDailyUsages()
                 }
                 .onChange(of: date) {
                     days = date.calendarDisplayDays

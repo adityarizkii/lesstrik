@@ -129,9 +129,8 @@ class Device: ObservableObject {
         print("\(index) \(data.count)")
 
         if index >= 0 && index < data.count {
-            data.remove(at: index)
             let request: NSFetchRequest<Devices> = Devices.fetchRequest()
-            request.predicate = NSPredicate(format: "id == %d", id)
+            request.predicate = NSPredicate(format: "id == %d", data[index].id)
             do{
                 let result = try context.fetch(request)
                 if let deleteData = result.first{
@@ -142,6 +141,8 @@ class Device: ObservableObject {
                 print("Error : Cannot delete data !")
             }
             
+            data.remove(at: index)
+
         } else {
             print("Error: Index out of range")
         }

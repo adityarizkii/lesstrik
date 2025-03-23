@@ -8,6 +8,8 @@
 import Foundation
 import CoreData
 
+
+
 class CoreDataStack: ObservableObject {
     static let shared = CoreDataStack()
 
@@ -16,10 +18,14 @@ class CoreDataStack: ObservableObject {
         let container = NSPersistentContainer(name: "DataModel")
         
         container.loadPersistentStores { _, error in
+            
+            
             if let error {
       
                 fatalError("Failed to load persistent stores: \(error.localizedDescription)")
             }
+            
+            
         }
         return container
     }()

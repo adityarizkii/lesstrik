@@ -15,8 +15,6 @@ struct DailyUsageModel {
 class DailyUsage : ObservableObject{
     var context = CoreDataStack.shared.context
     
-    
-    
     @Published var dailyUsages: [DailyUsageModel] = []
     
     func getDailyUsages(){
@@ -26,8 +24,8 @@ class DailyUsage : ObservableObject{
                 if let result = try? self.context.fetch(request){
                     self.dailyUsages =  result.map{ daily in
                         DailyUsageModel(
-                            id : daily.id!,
-                            date : daily.date!,
+                            id : daily.id ?? UUID(),
+                            date : daily.date ?? Date(),
                             totalCost : daily.totalCost
                         )
                     }
@@ -38,4 +36,8 @@ class DailyUsage : ObservableObject{
             }
         }
     }
+    
+    
+    
+    
 }
