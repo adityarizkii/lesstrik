@@ -31,7 +31,7 @@ struct HomePage: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
     @State var show = false
-    @State var usage = 200000
+    @State var usage = 0
     @State var averageUsage = 0
     @State var currentMonth = Date().monthInt - 1
     var dailyUsage = DailyUsage()
@@ -42,6 +42,7 @@ struct HomePage: View {
     var formater = DateFormatter()
     var yearFormatter = DateFormatter()
     @State var currentYear = 2025
+    @State var year = 2025
     @State var currentPeriod:String = ""
     @State var record = Record()
     @Binding var usageData: DailyUsageModel
@@ -208,32 +209,39 @@ struct HomePage: View {
                                 .padding(.bottom , 20)
                             
                             ZStack{
-                                CircularProgressView(
-                                    progress : getProgress(),
-                                    color : Color("TintedGreen"),
-                                    padding : 1,
-                                    thick : 25
-                                ){
-                                    VStack{
-                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
-                                            .font(.title)
-                                            .foregroundStyle(Color("TintedGreen"))
-                                            .bold(true)
-                                        Text("From target")
-                                            .font(.caption2)
-                                            .bold(true)
-                                            .foregroundStyle(Color("TintedGreen"))
-                                        
-                                    }
-                                    
+                                WaterProgressView(progress : getProgress()){
+                                    Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
+                                       .font(.title)
+                                       .foregroundStyle(Color("TintedGreen"))
+                                       .bold(true)
                                 }
-                                .padding(.leading, 10)
-                                .padding(.top, 20)
-                                .frame(height : 140)
+//                                CircularProgressView(
+//                                    progress : getProgress(),
+//                                    color : Color("TintedGreen"),
+//                                    padding : 1,
+//                                    thick : 25
+//                                ){
+//                                    VStack{
+//                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
+//                                            .font(.title)
+//                                            .foregroundStyle(Color("TintedGreen"))
+//                                            .bold(true)
+//                                        Text("From target")
+//                                            .font(.caption2)
+//                                            .bold(true)
+//                                            .foregroundStyle(Color("TintedGreen"))
+//                                        
+//                                    }
+//                                    
+//                                }
+//                                .padding(.leading, 10)
+//                                .padding(.top, 20)
+//                                .frame(height : 140)
                                 
                             }
                             .frame(maxHeight : .infinity, alignment : .center)
-                            .padding(.bottom, 20)
+                            .padding(.bottom, 10)
+                            
                             
                             VStack{
                                 
@@ -386,6 +394,9 @@ struct HomePage: View {
                                                 ||
                                                 (
                                                     currentMonth < Date().monthInt - 1  )
+                                                ||
+                                                (
+                                                    currentYear < year   )
                                                 
                                             {
                                                 Text(
@@ -491,6 +502,7 @@ struct HomePage: View {
                 self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
                 self.yearFormatter.setLocalizedDateFormatFromTemplate("yyyy")
                 self.currentYear = Int(self.yearFormatter.string(from : Date.now))!
+                self.year = Int(self.yearFormatter.string(from : Date.now))!
                 self.currentPeriod = self.formater.string(from : Date.now)
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
                 days = date.calendarDisplayDays
