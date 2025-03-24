@@ -31,7 +31,7 @@ struct HomePage: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
     @State var show = false
-    @State var usage = 200000
+    @State var usage = 0
     @State var averageUsage = 0
     @State var currentMonth = Date().monthInt - 1
     var dailyUsage = DailyUsage()
@@ -42,6 +42,7 @@ struct HomePage: View {
     var formater = DateFormatter()
     var yearFormatter = DateFormatter()
     @State var currentYear = 2025
+    @State var year = 2025
     @State var currentPeriod:String = ""
     @State var record = Record()
     @Binding var usageData: DailyUsageModel
@@ -201,50 +202,94 @@ struct HomePage: View {
                 VStack{
                     ScrollView{
                         VStack(spacing : 0) {
-                            Text(Greetings())
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .font(.system(.largeTitle, weight: .bold))
-                                .padding(.top, 20)
-                                .padding(.bottom , 20)
                             
-                            ZStack{
-                                CircularProgressView(
-                                    progress : getProgress(),
-                                    color : Color("TintedGreen"),
-                                    padding : 1,
-                                    thick : 25
-                                ){
-                                    VStack{
-                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
-                                            .font(.title)
-                                            .foregroundStyle(Color("TintedGreen"))
-                                            .bold(true)
-                                        Text("From target")
-                                            .font(.caption2)
-                                            .bold(true)
-                                            .foregroundStyle(Color("TintedGreen"))
-                                        
-                                    }
-                                    
-                                }
-                                .padding(.leading, 10)
-                                .padding(.top, 20)
-                                .frame(height : 140)
+                            HStack{
+                                Image("AppLogo")
+                                    .resizable()
+                                    .scaledToFit( )
+                                    .frame(width: 30, height: 50)
+                                    .clipShape(Circle())
                                 
+                                Text("Lesstrik")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .font(.system(.title, weight: .bold))
                             }
-                            .frame(maxHeight : .infinity, alignment : .center)
-                            .padding(.bottom, 20)
+                            .padding(.bottom, 30)
+                            .frame(alignment : .center)
+                           
+                            
+                            
+                            
                             
                             VStack{
-                                
-                                VStack(spacing : 0){
+                                ZStack{
+                                    WaterProgressView(progress : getProgress()){
+                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
+                                           .font(.title)
+                                           .foregroundStyle(Color("TintedGreen"))
+                                           .bold(true)
+                                    }
+    //                                CircularProgressView(
+    //                                    progress : getProgress(),
+    //                                    color : Color("TintedGreen"),
+    //                                    padding : 1,
+    //                                    thick : 25
+    //                                ){
+    //                                    VStack{
+    //                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
+    //                                            .font(.title)
+    //                                            .foregroundStyle(Color("TintedGreen"))
+    //                                            .bold(true)
+    //                                        Text("From target")
+    //                                            .font(.caption2)
+    //                                            .bold(true)
+    //                                            .foregroundStyle(Color("TintedGreen"))
+    //
+    //                                    }
+    //
+    //                                }
+    //                                .padding(.leading, 10)
+    //                                .padding(.top, 20)
+    //                                .frame(height : 140)
+                                    
+                                }
+                                .frame(maxHeight : .infinity, alignment : .center)
+                                .padding(.bottom, 10)
+                                VStack(spacing : 10){
                                     HStack{
-                                        VStack{
-                                            Text("Goal")
+                                                                                
+                                        VStack(spacing : 5){
+                                            Text("Monthly Usage")
                                                 .font(.subheadline)
+                                                .bold(true)
+                                                .foregroundStyle(
+                                                    Color("Green")
+                                                )
+                                                .multilineTextAlignment(.trailing)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
+                                            Text("Rp \( Int32(getFinalCost()))")
+                                                .foregroundStyle(
+                                                    Color("Green")
+                                                )
+                                                .font(.title2)
+                                                .bold(true)
+                                                .frame(maxWidth : .infinity, alignment : .leading)
+                                        }
+                                        .frame(
+                                            maxWidth : .infinity,
+                                            alignment : .topTrailing
+                                        )
+                                        
+                                        
+                                        Spacer()
+                                        
+                                        VStack(spacing : 5){
+                                            Text("Monthly Limit")
+                                                .font(.subheadline)
+                                                .bold(true)
+                                                .frame(maxWidth : .infinity, alignment : .trailing)
                                             Text("Rp \( Int32(recordData.usage_goal) )")
-                                                .frame(maxWidth : .infinity, alignment : .leading)
+                                                .frame(maxWidth : .infinity, alignment : .trailing)
                                                 .padding(.bottom, 2)
                                                 .font(.title2)
                                                 .bold(true)
@@ -257,36 +302,27 @@ struct HomePage: View {
                                             alignment : .topLeading
                                         )
                                         
-                                        Spacer()
-                                        
-                                        VStack{
-                                            Text("Monthly Usage")
-                                                .font(.subheadline)
-                                                .bold(true)
-                                                .foregroundStyle(
-                                                    Color("ShadedGreen")
-                                                )
-                                                .multilineTextAlignment(.trailing)
-                                                .frame(maxWidth : .infinity, alignment : .trailing)
-                                            Text("Rp \( Int32(getFinalCost()))")
-                                                .foregroundStyle(
-                                                    Color("ShadedGreen")
-                                                )
-                                                .font(.title2)
-                                                .bold(true)
-                                                .frame(maxWidth : .infinity, alignment : .trailing)
-                                        }
-                                        .frame(
-                                            maxWidth : .infinity,
-                                            alignment : .topTrailing
-                                        )
-                                        
                                         
                                     }
                                     .frame(maxWidth : .infinity, alignment : .top)
                                     .padding(.horizontal , 10)
                                     
                                     HStack{
+                                        
+                                        VStack{
+                                            Text("Daily Average : ")
+                                                .font(.caption)
+                                                .bold(true)
+                                                .frame(maxWidth : .infinity, alignment : .leading)
+                                            Text("Rp \( Int32(averageUsage))")
+                                                .font(.subheadline)
+                                                .bold(true)
+                                                .frame(maxWidth : .infinity, alignment : .leading)
+                                        }
+                                        .frame(alignment : .topTrailing)
+                                        
+                                        Spacer()
+                                        
                                         Button (action : {
                                             print("Set")
                                             show = true
@@ -303,15 +339,7 @@ struct HomePage: View {
                                                 .fill(Color("Yellow"))
                                         )
                                         
-                                        Spacer()
                                         
-                                        VStack{
-                                            Text("Rp \( Int32(averageUsage))/Day")
-                                                .font(.subheadline)
-                                                .bold(true)
-                                                .frame(maxWidth : .infinity, alignment : .trailing)
-                                        }
-                                        .frame(alignment : .topTrailing)
                                     }
                                     .padding(.horizontal, 10)
                                 }
@@ -332,102 +360,126 @@ struct HomePage: View {
                                 
                             }
                             
-                            Text("Daily Usage")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .font(.title2)
-                                .bold(true)
-                                .padding(.top, 20)
-                            
-                            HStack {
-                                Text("\(getMonthString(m: currentMonth)) \(String(currentYear))")
-                                Spacer()
+                            VStack{
+                                
+                                Text("Daily Usage")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .font(.title2)
+                                    .bold(true)
+                                    .padding(.bottom, 10)
+                                
                                 HStack {
-                                    Image(systemName: "chevron.left")
-                                        .onTapGesture {
-                                            currentYear -= currentMonth == 0 ? 1 : 0
-                                            currentMonth = (currentMonth + 11) % 12
-                                            fetchRecord()
-                                            fetchUsages()
-                                            
-                                        }
-                                    Image(systemName: "chevron.right")
-                                        .onTapGesture {
-                                            currentYear += currentMonth == 11 ? 1 : 0
-                                            currentMonth = (currentMonth + 13) % 12
-                                            fetchRecord()
-                                            fetchUsages()
-                                        }
-                                }
-                            }
-                            
-                            // calendar
-                            HStack {
-                                ForEach(daysOfWeek.indices, id:  \.self) { index in
-                                    Text(daysOfWeek[index])
-                                        .fontWeight(.black)
-                                        .foregroundStyle(Color("ShadedGreen"))
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .padding(.top)
-                            .padding(.horizontal,0)
-                            LazyVGrid(columns: columns, spacing: 0) {
-                                ForEach(days, id: \.self) { day in
-                                    if(day.monthInt != date.monthInt) {
-                                        Text("")
-                                    } else {
-                                        VStack(spacing: 0) {
-                                            Text(day.formatted(.dateTime.day()))
-                                                .fontWeight(.bold)
-                                                .frame(maxWidth: .infinity, minHeight: 35)
-                                                .foregroundStyle(date.startOfDay == day.startOfDay && currentMonth == Date().monthInt - 1 ? .blue : Color("DarkYellow"))
-                                            
-                                            if ( date.startOfDay >= day.startOfDay && currentMonth + 1 == Date().monthInt  )
-                                                ||
-                                                (
-                                                    currentMonth < Date().monthInt - 1  )
+                                    Text("\(getMonthString(m: currentMonth)) \(String(currentYear))")
+                                    Spacer()
+                                    HStack {
+                                        Image(systemName: "chevron.left")
+                                            .onTapGesture {
+                                                currentYear -= currentMonth == 0 ? 1 : 0
+                                                currentMonth = (currentMonth + 11) % 12
+                                                fetchRecord()
+                                                fetchUsages()
                                                 
-                                            {
-                                                Text(
-                                                    ( String(
-                                                        format : "%.1f",
-                                                        costData[Int(day.formatted(.dateTime.day())) ?? 0]
-                                                    )) + "k"
-                                                )
-                                                .font(.caption2)
-                                                .foregroundStyle(Color("Green"))
-                                                .bold(true)
-                                                .padding(.horizontal, 5)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius : 5).fill(Color("Yellow"))
-                                                )
-                                                .offset(y :  -8)
-                                            }else{
-                                                Text("          ")
+                                            }
+                                        Image(systemName: "chevron.right")
+                                            .onTapGesture {
+                                                currentYear += currentMonth == 11 ? 1 : 0
+                                                currentMonth = (currentMonth + 13) % 12
+                                                fetchRecord()
+                                                fetchUsages()
+                                            }
+                                    }
+                                }
+                                
+                                // calendar
+                                HStack {
+                                    ForEach(daysOfWeek.indices, id:  \.self) { index in
+                                        Text(daysOfWeek[index])
+                                            .fontWeight(.black)
+                                            .foregroundStyle(Color("Green"))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                }
+                                .padding(.top)
+                                .padding(.horizontal,0)
+                                
+                                LazyVGrid(columns: columns, spacing: 0) {
+                                    ForEach(days, id: \.self) { day in
+                                        if(day.monthInt != date.monthInt) {
+                                            Text("")
+                                        } else {
+                                            VStack(spacing: 0) {
+                                                Text(day.formatted(.dateTime.day()))
+                                                    .fontWeight(.bold)
+                                                    .frame(maxWidth: .infinity, minHeight: 35)
+                                                    .foregroundStyle(date.startOfDay == day.startOfDay && currentMonth == Date().monthInt - 1 ? Color("Green") : .black)
+                                                
+                                                if ( date.startOfDay >= day.startOfDay && currentMonth + 1 == Date().monthInt  )
+                                                    ||
+                                                    (
+                                                        currentMonth < Date().monthInt - 1  )
+                                                    ||
+                                                    (
+                                                        currentYear < year   )
+                                                    
+                                                {
+                                                    Text(
+                                                        ( String(
+                                                            format : "%.1f",
+                                                            costData[Int(day.formatted(.dateTime.day())) ?? 0]
+                                                        )) + "k"
+                                                    )
                                                     .font(.caption2)
+                                                    .foregroundStyle(Color("ShadedGreen"))
                                                     .bold(true)
                                                     .padding(.horizontal, 5)
-                                                    .offset(y :  -8)
+                                                    .padding(.vertical, 1)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius : 3)
+                                                            .stroke(
+                                                                Color("Yellow"),
+                                                                style : StrokeStyle(
+                                                                    lineWidth : 2
+                                                                )
+                                                            )
+                                                    )
+                                                    .offset(y :  -3)
+                                                    .frame(maxWidth : .infinity)
+                                                }else{
+                                                    Text("          ")
+                                                        .font(.caption2)
+                                                        .bold(true)
+                                                        .padding(.horizontal, 5)
+                                                        .offset(y :  -8)
+                                                }
+                                                
                                             }
                                             
-                                        }
-                                        
-                                        .onTapGesture{
-                                            fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
-                                                print(addDays(to: day, days: 1))
-                                                print("idx :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
-                                                route.currentPage = .dailyUsage
+                                            .onTapGesture{
+                                                fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
+                                                    print(addDays(to: day, days: 1))
+                                                    print("idxd :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
+                                                    route.currentPage = .dailyUsage
+                                                }
+                                                
                                             }
-                                            
                                         }
                                     }
                                 }
+                                
+                                .padding(.horizontal,0)
                             }
-                            
-                            .padding(.horizontal,0)
+                            .padding(10)
+//                            .background(
+//                                RoundedRectangle(
+//                                    cornerRadius : 10
+//                                )
+//                                .fill(.gray.opacity(0.1))
+//                            )
+                            .padding(.top, 20)
                             
                             
                         }
+                        
                         
                         .onChange(of: date) {
                             days = date.calendarDisplayDays
@@ -448,8 +500,8 @@ struct HomePage: View {
                         //path.append("Calculate")
                         route.currentPage = .dailyUsage
                     } label: {
-                        Text("Add Daily Usage")
-                            .foregroundStyle(Color("ShadedGreen"))
+                        Text("Add Today Usage")
+                            .foregroundStyle(.black)
                             .font(.system(.title3, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
@@ -491,6 +543,7 @@ struct HomePage: View {
                 self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
                 self.yearFormatter.setLocalizedDateFormatFromTemplate("yyyy")
                 self.currentYear = Int(self.yearFormatter.string(from : Date.now))!
+                self.year = Int(self.yearFormatter.string(from : Date.now))!
                 self.currentPeriod = self.formater.string(from : Date.now)
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
                 days = date.calendarDisplayDays

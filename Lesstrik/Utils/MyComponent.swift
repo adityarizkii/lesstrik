@@ -146,16 +146,73 @@ struct myAlert: View {
 }
 
 
+struct WaterProgressView <Content : View>: View  {
+    var progress: Double = 0.5
+    @State var waveOffset: CGFloat = 0.0
+    @State var val : Double = 2
+    var content : () -> Content
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                WaterShape(progress: progress, waveOffset: waveOffset)
+                    .fill(Color.green.opacity(0.6))
+                    .frame(width: 150, height: 150)
+                    .overlay(
+                        content()
+                    )
+                    .clipShape(Circle())
+                    .onAppear {
+                       
+                        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                            waveOffset = .pi * val * 0.3
+                            val += 0.1
+                        }
+                       
+                    }
+                    .background(
+                        Circle()
+                            .fill(Color.green.opacity(0.1))
+                    )
+            }
+        }
+    }
+}
+
+struct WaterShape: Shape {
+    var progress: Double
+    var waveOffset: CGFloat
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        var waterHeight = rect.height * (1 - CGFloat(progress))
+        let waveAmplitude: CGFloat = 10
+        let waveLength: CGFloat = rect.width / 1.2
+        
+        path.move(to: CGPoint(x: 0, y: waterHeight))
+        for x in stride(from: 0, through: rect.width, by: 1) {
+            let relativeX = x / waveLength
+            let sine = sin(relativeX * .pi * 2 + waveOffset)
+ 
+            let y = waterHeight + sine * waveAmplitude
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        path.addLine(to: CGPoint(x: rect.width, y: rect.height))
+        path.addLine(to: CGPoint(x: 0, y: rect.height))
+        
+        
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+
 
 
 #Preview{
-    myAlert(
-        visible : .constant(true),
-        onSave : { value in
-            return
-        },
-        onCancel: {
-            
-        }
-    )
+    WaterProgressView(){
+        Text("Hallo")
+    }
 }

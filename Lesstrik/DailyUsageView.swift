@@ -171,6 +171,8 @@ struct DailyUsageView: View {
                         totalCost: Int32(totalCost)
                     )){ error, message in
                         print(message)
+                        route.currentPage = .home
+
                     }
                 }) {
                     Text("Save")
