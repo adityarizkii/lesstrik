@@ -40,18 +40,14 @@ struct DailyUsageView: View {
     var body: some View {
         VStack {
             Text("Daily Usage")
-                .font(.system(size: 32, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundStyle(Color("DarkestYellow"))
-
+                .font(.system(.largeTitle, weight: .bold))
             VStack {
-                Text("Rp.\(totalCost)")
-                    .font(.system(size: 38, weight: .bold))
-                    .foregroundStyle(Color("Yellow"))
+                Text("Rp\(totalCost)")
+                    .font(.system(.title, weight: .semibold))
+                    .padding(.bottom, 4)
 
-                Text("Daily Goal: Rp.\(totalCost)")
-                    .font(.headline)
-                    .foregroundStyle(Color("Green"))
+                Text("Daily Goal : Rp\(totalCost)")
+                    .font(.system(.title2))
             }
             .padding(.vertical, 20)
 
@@ -59,7 +55,6 @@ struct DailyUsageView: View {
                 Text("Device List")
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundStyle(Color("DarkestYellow"))
                 Spacer()
                 Button(action: {
                     device.updateDailyUsage(data : data)
@@ -79,9 +74,9 @@ struct DailyUsageView: View {
                         .font(.headline)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .foregroundStyle(Color("DarkYellow"))
                 }
                 .background(RoundedRectangle(cornerRadius: 50).fill(Color("Yellow")))
+                .foregroundStyle(.black)
             }
             .padding(.vertical, 10)
 
@@ -90,20 +85,19 @@ struct DailyUsageView: View {
                     ForEach(columns, id: \.self) { value in
                         Text(value)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .foregroundStyle(Color("DarkestYellow"))
                     }
 
                     if !data.isEmpty {
                         ForEach(data.indices, id: \.self) { index in
                             if index < data.count {
-                                CircularProgressView(progress: 1, color: Color("Yellow"), padding: 3, textColor: Color("DarkestYellow")) {
-                                    Text("\(index + 1)")
-                                }
+                                Text("\(index + 1)")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
 
                                 TextField("Device Name", text: $data[index].name)
                                     .padding(5)
-                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray.opacity(0.5)))
+                                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray))
                                     .frame(maxWidth: .infinity)
+                                    .background(.gray.opacity(0.1))
                                     .focused($focusedIndex, equals: index)  // Tambahkan ini
 
                                 TextField("Watt", text: Binding(
@@ -116,8 +110,9 @@ struct DailyUsageView: View {
                                     }
                                 ))
                                 .padding(5)
-                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray.opacity(0.5)))
+                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray))
                                 .frame(maxWidth: .infinity)
+                                .background(.gray.opacity(0.1))
                                 .focused($focusedIndex, equals: index)
 
                                 TextField("Hrs", text: Binding(
@@ -130,25 +125,29 @@ struct DailyUsageView: View {
                                     }
                                 ))
                                 .padding(5)
-                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray.opacity(0.5)))
+                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray))
                                 .frame(maxWidth: .infinity)
+                                .background(.gray.opacity(0.1))
                                 .focused($focusedIndex, equals: index)
 
-                                Button(action: {
-                                    focusedIndex = nil
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        device.deleteDailyUsage(index : data[index].id)
-                                        data.remove(at: index)
-                                        showDetail = false
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        focusedIndex = nil
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            device.deleteDailyUsage(index : data[index].id)
+                                            data.remove(at: index)
+                                            showDetail = false
+                                        }
+                                    }) {
+                                        Image(systemName: "minus.circle")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .padding(7)
+                                            .foregroundStyle(.red.opacity(0.6))
                                     }
-                                }) {
-                                    Image(systemName: "minus.circle")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .padding(7)
-                                        .foregroundStyle(.gray)
+                                    .frame(width: 40, height: 40)
                                 }
-                                .frame(width: 40.0, height: 40)
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -158,6 +157,12 @@ struct DailyUsageView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.trailing, 10)
+                
+                if(data.isEmpty) {
+                    Text("No Device List in this day.")
+                        .padding(.top, 32)
+                        .foregroundStyle(.gray)
+                }
             }
 
             Spacer()
@@ -190,7 +195,7 @@ struct DailyUsageView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, 25)
         .padding(.top, 30)
-        .background()
+//        .background(.gray.opacity(0.3))
         .animation(.easeIn(duration: 2), value: route.currentPage)
         .onAppear {
             device.getDeviceByUsage(id: usageData.id){ result in
