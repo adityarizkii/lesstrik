@@ -69,6 +69,8 @@ class Record:ObservableObject{
                         )
                         print("✅ Updated currentData: \(result.first!.usage_goal)")
                     }
+                }else{
+                    callback(nil)
                 }
             }
         }

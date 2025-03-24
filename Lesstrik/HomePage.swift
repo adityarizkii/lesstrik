@@ -133,6 +133,23 @@ struct HomePage: View {
         if let d = Calendar.current.date(from: date){
             days = d.calendarDisplayDays
             self.date = d
+            
+            self.currentPeriod = self.formater.string(from : d)
+            self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
+            
+            record.getRecords(period: self.currentPeriod){ value in
+                if value != nil {
+                    recordData = value!
+                }else{
+                    print("Nothing")
+                    recordData = RecordType(
+                        id : UUID(),
+                        period : self.currentPeriod,
+                        usage_goal:  0
+                    )
+                }
+                
+            }
         }
         
         fetchDailyUsage(date : getCurrentDateAtMidnight()){
@@ -163,6 +180,13 @@ struct HomePage: View {
         }
     }
     
+    func getProgress() -> Double{
+        if recordData.usage_goal == 0{
+            return 0
+        }
+        return Double(getFinalCost())/Double(recordData.usage_goal )
+    }
+    
     // navigation
     @State private var path = NavigationPath()
     
@@ -185,13 +209,13 @@ struct HomePage: View {
                             
                             ZStack{
                                 CircularProgressView(
-                                    progress : Double(getFinalCost())/Double(recordData.usage_goal ),
+                                    progress : getProgress(),
                                     color : Color("TintedGreen"),
                                     padding : 1,
                                     thick : 25
                                 ){
                                     VStack{
-                                        Text("\(String(format  : "%.0f" , Double(getFinalCost())/Double(recordData.usage_goal) * 100.0) + "%")")
+                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
                                             .font(.title)
                                             .foregroundStyle(Color("TintedGreen"))
                                             .bold(true)
@@ -356,7 +380,7 @@ struct HomePage: View {
                                             Text(day.formatted(.dateTime.day()))
                                                 .fontWeight(.bold)
                                                 .frame(maxWidth: .infinity, minHeight: 35)
-                                                .foregroundStyle(date.startOfDay == day.startOfDay ? .blue : Color("DarkYellow"))
+                                                .foregroundStyle(date.startOfDay == day.startOfDay && currentMonth == Date().monthInt - 1 ? .blue : Color("DarkYellow"))
                                             
                                             if ( date.startOfDay >= day.startOfDay && currentMonth + 1 == Date().monthInt  )
                                                 ||
