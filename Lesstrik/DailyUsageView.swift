@@ -96,9 +96,10 @@ struct DailyUsageView: View {
                     if !data.isEmpty {
                         ForEach(data.indices, id: \.self) { index in
                             if index < data.count {
-                                CircularProgressView(progress: 1, color: Color("Yellow"), padding: 3, textColor: Color("DarkestYellow")) {
-                                    Text("\(index + 1)")
-                                }
+                                
+                                Text("\(index + 1)")
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth : .infinity, alignment : .center)
 
                                 TextField("Device Name", text: $data[index].name)
                                     .padding(5)
