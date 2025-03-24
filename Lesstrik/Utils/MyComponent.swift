@@ -185,7 +185,7 @@ struct WaterShape: Shape {
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        let waterHeight = rect.height * (1 - CGFloat(progress))
+        var waterHeight = rect.height * (1 - CGFloat(progress))
         let waveAmplitude: CGFloat = 10
         let waveLength: CGFloat = rect.width / 1.2
         
@@ -193,12 +193,15 @@ struct WaterShape: Shape {
         for x in stride(from: 0, through: rect.width, by: 1) {
             let relativeX = x / waveLength
             let sine = sin(relativeX * .pi * 2 + waveOffset)
+ 
             let y = waterHeight + sine * waveAmplitude
             path.addLine(to: CGPoint(x: x, y: y))
         }
         
         path.addLine(to: CGPoint(x: rect.width, y: rect.height))
         path.addLine(to: CGPoint(x: 0, y: rect.height))
+        
+        
         path.closeSubpath()
         
         return path
