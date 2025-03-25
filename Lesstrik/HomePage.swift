@@ -453,7 +453,7 @@ struct HomePage: View {
                                                 }
                                                 
                                             }
-                                            .padding(.vertical, 10)
+                                            .padding(.vertical, 5)
                                             .frame(maxWidth : .infinity)
                                             .onTapGesture{
                                                 fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
@@ -469,7 +469,8 @@ struct HomePage: View {
                                 
                                 .padding(.horizontal,0)
                             }
-                            .padding(20)
+                            .padding(.vertical, 20)
+                            .padding(.horizontal, 10)
                             .background(
                                 RoundedRectangle(
                                     cornerRadius : 10
