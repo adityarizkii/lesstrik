@@ -281,14 +281,11 @@ struct HomePage: View {
                                             Text("Monthly Usage")
                                                 .font(.subheadline)
                                                 .bold(true)
-                                                .foregroundStyle(
-                                                    Color("Green")
-                                                )
                                                 .multilineTextAlignment(.trailing)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
                                             Text("Rp \( Int32(getFinalCost()))")
                                                 .foregroundStyle(
-                                                    Color("Green")
+                                                    getProgerssTextColor()
                                                 )
                                                 .font(.title2)
                                                 .bold(true)
@@ -332,7 +329,7 @@ struct HomePage: View {
                                                 .font(.caption)
                                                 .bold(true)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
-                                            Text("Rp \( Int32(averageUsage))")
+                                            Text("Rp \( Int32(getFinalCost()/30))")
                                                 .font(.subheadline)
                                                 .bold(true)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
@@ -412,7 +409,7 @@ struct HomePage: View {
                                     ForEach(daysOfWeek.indices, id:  \.self) { index in
                                         Text(daysOfWeek[index])
                                             .fontWeight(.black)
-                                            .foregroundStyle(Color("Green"))
+                                            .foregroundStyle(Color("TextDefault"))
                                             .frame(maxWidth: .infinity)
                                     }
                                 }
@@ -428,7 +425,7 @@ struct HomePage: View {
                                                 Text(day.formatted(.dateTime.day()))
                                                     .fontWeight(.bold)
                                                     .frame(maxWidth: .infinity, minHeight: 35)
-                                                    .foregroundStyle(date.startOfDay == day.startOfDay && currentMonth == Date().monthInt - 1 ? Color("Green") : .black)
+                                                    .foregroundStyle(date.startOfDay == day.startOfDay && currentMonth == Date().monthInt - 1 ? Color("Green") : Color("TextDefault"))
                                                 
                                                 if ( date.startOfDay >= day.startOfDay && currentMonth + 1 == Date().monthInt  )
                                                     ||
@@ -446,7 +443,7 @@ struct HomePage: View {
                                                         )) + "k"
                                                     )
                                                     .font(.caption2)
-                                                    .foregroundStyle(.black)
+                                                    .foregroundStyle(Color("TextDefault"))
                                                     .bold(true)
                                                     .padding(.horizontal, 5)
                                                     .padding(.vertical, 1)
@@ -491,6 +488,7 @@ struct HomePage: View {
                                 RoundedRectangle(
                                     cornerRadius : 10
                                 )
+                                .stroke(Color(.blue), lineWidth: 2)
                                 .fill(.gray.opacity(0.1))
                             )
                             .padding(.top, 20)
@@ -512,6 +510,7 @@ struct HomePage: View {
                         }
                     }
                     
+                    
                     Spacer()
                     
                     Button {
@@ -521,6 +520,7 @@ struct HomePage: View {
                         Text("Add Today Usage")
                             .foregroundStyle(.black)
                             .font(.system(.title3, weight: .bold))
+                            .frame(maxWidth : .infinity)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -533,6 +533,7 @@ struct HomePage: View {
                     .padding(.horizontal, 25)
 
                 }
+                
                 
                 myAlert(
                     visible : $show,

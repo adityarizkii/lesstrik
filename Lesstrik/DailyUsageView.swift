@@ -72,13 +72,16 @@ struct DailyUsageView: View {
             VStack {
                 Text("Daily Usage")
                     .font(.system(.largeTitle, weight: .bold))
+                    .foregroundStyle(.black)
                 VStack {
                     Text("Rp\(totalCost)")
                         .font(.system(.title, weight: .semibold))
                         .padding(.bottom, 4)
+                        .foregroundStyle(.black)
                     
                     Text("Daily Goal : Rp\(totalCost)")
                         .font(.system(.title3))
+                        .foregroundStyle(.black)
                 }
                 .padding(.vertical, 20)
                 
@@ -112,11 +115,14 @@ struct DailyUsageView: View {
                 .padding(.vertical, 10)
                 
                 ScrollView {
-                    LazyVGrid(columns: templateRow) {
+                    LazyVGrid(
+                        columns: templateRow
+                    ) {
                         ForEach(columns, id: \.self) { value in
                             Text(value)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                       
                         
                         if !data.isEmpty {
                             ForEach(data.indices, id: \.self) { index in
@@ -189,6 +195,7 @@ struct DailyUsageView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.trailing, 10)
+                    
                     
                     if(data.isEmpty) {
                         Text("No Device List in this day.")

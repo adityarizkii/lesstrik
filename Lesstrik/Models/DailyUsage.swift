@@ -62,6 +62,8 @@ class DailyUsage : ObservableObject{
                 let endOfMonth = calendar.date(from: endComponents)!
 
                 request.predicate = NSPredicate(format: "date >= %@ AND date <= %@", startOfMonth as NSDate, endOfMonth as NSDate)
+                request.sortDescriptors = [NSSortDescriptor(key: "totalCost", ascending: false)]
+
 
                 if let result = try? self.context.fetch(request) {
                     let dailyUsageModel = result.map { val in
