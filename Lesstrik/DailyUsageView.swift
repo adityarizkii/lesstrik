@@ -247,6 +247,9 @@ struct DailyUsageView: View {
             .onReceive(device.objectWillChange) { _ in
                 calculateTotal()
             }
+            .onTapGesture {
+               focusedIndex = nil  // Menutup keyboard saat area kosong diketuk
+           }
     
             
         }
