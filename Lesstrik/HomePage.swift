@@ -129,16 +129,17 @@ struct HomePage: View {
         self.currentPeriod = self.formater.string(from : Date.now)
         self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
         var date = DateComponents()
-        date.day = Calendar.current.component(.day, from : self.date)
+        date.day = Calendar.current.component(.day, from : Date.now)
         date.month = self.currentMonth + 1
         date.year = self.currentYear
         if let d = Calendar.current.date(from: date){
             days = d.calendarDisplayDays
             self.date = d
-            
+            self.formater.dateFormat = "MMyyyy"
             self.currentPeriod = self.formater.string(from : d)
             self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
-            
+            print("Tanggal skrg : \(d)   -  \(self.currentPeriod)")
+
             record.getRecords(period: self.currentPeriod){ value in
                 if value != nil {
                     recordData = value!
@@ -283,13 +284,22 @@ struct HomePage: View {
                                                 .bold(true)
                                                 .multilineTextAlignment(.trailing)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
-                                            Text("Rp \( Int32(getFinalCost()))")
-                                                .foregroundStyle(
-                                                    getProgerssTextColor()
-                                                )
-                                                .font(.title2)
-                                                .bold(true)
-                                                .frame(maxWidth : .infinity, alignment : .leading)
+                                            
+                                            HStack(spacing : 0){
+                                                Text("Rp \( Int32(getFinalCost()))")
+                                                    .foregroundStyle(
+                                                        getProgerssTextColor()
+                                                    )
+                                                    .font(.title2)
+                                                    .bold(true)
+                                                    .frame(alignment : .leading)
+                                                    .padding(.trailing, 3)
+//                                                Image(systemName: "info.circle")
+//                                                    .frame(alignment : .leading)
+//                                                    .offset(y : -25)
+                                            }
+                                            .frame(maxWidth : .infinity, alignment : .leading)
+                                           
                                         }
                                         .frame(
                                             maxWidth : .infinity,
@@ -392,6 +402,9 @@ struct HomePage: View {
                                                 currentMonth = (currentMonth + 11) % 12
                                                 fetchRecord()
                                                 fetchUsages()
+                                                fetchDailyUsage(date: self.date){
+                                                    
+                                                }
                                                 
                                             }
                                         Image(systemName: "chevron.right")
@@ -400,6 +413,9 @@ struct HomePage: View {
                                                 currentMonth = (currentMonth + 13) % 12
                                                 fetchRecord()
                                                 fetchUsages()
+                                                fetchDailyUsage(date: date){
+                                                    
+                                                }
                                             }
                                     }
                                 }
@@ -473,7 +489,7 @@ struct HomePage: View {
                                             .onTapGesture{
                                                 fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
                                                     print(addDays(to: day, days: 1))
-                                                    print("idxd :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
+                                                  
                                                     route.currentPage = .dailyUsage
                                                 }
                                             }
@@ -489,7 +505,7 @@ struct HomePage: View {
                                     cornerRadius : 10
                                 )
                                 .stroke(Color(.blue), lineWidth: 2)
-                                .fill(.gray.opacity(0.1))
+                                .fill(.gray.opacity(0.05))
                             )
                             .padding(.top, 20)
                             
@@ -539,16 +555,27 @@ struct HomePage: View {
                     visible : $show,
                     onSave : { value in
                         if let num = Int(value) {
-                            self.record.addRecord(data: RecordType(
-                                id : recordData.id,
-                                period : self.currentPeriod,
-                                usage_goal : Int32(num)
-                            ))
-                            record.getRecords(period: self.currentPeriod){ value in
-                                if value != nil {
-                                    recordData = value!
-                                }
+                            var date = DateComponents()
+                            date.day = Calendar.current.component(.day, from : self.date)
+                            date.month = self.currentMonth + 1
+                            date.year = self.currentYear
+                            if let d = Calendar.current.date(from: date){
+                                days = d.calendarDisplayDays
+                                self.date = d
                                 
+                                self.currentPeriod = self.formater.string(from : d)
+                                self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
+                                self.record.addRecord(data: RecordType(
+                                    id : recordData.id,
+                                    period : self.currentPeriod,
+                                    usage_goal : Int32(num)
+                                ))
+                                record.getRecords(period: self.currentPeriod){ value in
+                                    if value != nil {
+                                        recordData = value!
+                                    }
+                                    
+                                }
                             }
                         }
                     },
