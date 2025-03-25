@@ -282,13 +282,13 @@ struct HomePage: View {
                                                 .font(.subheadline)
                                                 .bold(true)
                                                 .foregroundStyle(
-                                                    Color("Green")
+                                                    .black
                                                 )
                                                 .multilineTextAlignment(.trailing)
                                                 .frame(maxWidth : .infinity, alignment : .leading)
                                             Text("Rp \( Int32(getFinalCost()))")
                                                 .foregroundStyle(
-                                                    Color("Green")
+                                                    getProgerssTextColor()
                                                 )
                                                 .font(.title2)
                                                 .bold(true)
@@ -412,7 +412,7 @@ struct HomePage: View {
                                     ForEach(daysOfWeek.indices, id:  \.self) { index in
                                         Text(daysOfWeek[index])
                                             .fontWeight(.black)
-                                            .foregroundStyle(Color("Green"))
+                                            .foregroundStyle(.black)
                                             .frame(maxWidth: .infinity)
                                     }
                                 }
@@ -512,6 +512,7 @@ struct HomePage: View {
                         }
                     }
                     
+                    
                     Spacer()
                     
                     Button {
@@ -533,6 +534,7 @@ struct HomePage: View {
                     .padding(.horizontal, 25)
 
                 }
+                
                 
                 myAlert(
                     visible : $show,
