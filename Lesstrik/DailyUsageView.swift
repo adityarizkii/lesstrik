@@ -39,6 +39,22 @@ struct DailyUsageView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
+            HStack {
+                Button {
+                    route.currentPage = .home
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .foregroundStyle(.black)
+                    .background(.white)
+                }
+                Spacer()
+            }
+            .zIndex(1)
             Image("Background")
                 .resizable()
 //                .scaledToFill()

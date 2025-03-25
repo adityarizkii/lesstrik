@@ -214,13 +214,8 @@ struct HomePage: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .font(.system(.title, weight: .bold))
                             }
-                            .padding(.bottom, 30)
+                            .padding(.bottom)
                             .frame(alignment : .center)
-                           
-                            
-                            
-                            
-                            
                             VStack{
                                 ZStack{
                                     WaterProgressView(progress : getProgress()){
@@ -255,7 +250,7 @@ struct HomePage: View {
                                 }
                                 .frame(maxHeight : .infinity, alignment : .center)
                                 .padding(.bottom, 10)
-                                VStack(spacing : 10){
+                                VStack(spacing : 16){
                                     HStack{
                                                                                 
                                         VStack(spacing : 5){
@@ -308,7 +303,6 @@ struct HomePage: View {
                                     .padding(.horizontal , 10)
                                     
                                     HStack{
-                                        
                                         VStack{
                                             Text("Daily Average : ")
                                                 .font(.caption)
@@ -343,12 +337,14 @@ struct HomePage: View {
                                     }
                                     .padding(.horizontal, 10)
                                 }
+                                .padding(.top)
                             }
                             .frame(
                                 maxWidth: .infinity,
                                 alignment : .top
                             )
-                            .padding(.vertical, 10)
+                            .padding(.vertical, 20)
+                            .padding(.horizontal)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color(.blue), lineWidth: 2)
@@ -361,13 +357,10 @@ struct HomePage: View {
                             }
                             
                             VStack{
-                                
                                 Text("Daily Usage")
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .font(.title2)
-                                    .bold(true)
-                                    .padding(.bottom, 10)
-                                
+                                    .font(.system(.title3, weight: .medium))
+                                    .padding(.bottom, 6)
                                 HStack {
                                     Text("\(getMonthString(m: currentMonth)) \(String(currentYear))")
                                     Spacer()
@@ -429,7 +422,7 @@ struct HomePage: View {
                                                         )) + "k"
                                                     )
                                                     .font(.caption2)
-                                                    .foregroundStyle(Color("ShadedGreen"))
+                                                    .foregroundStyle(.black)
                                                     .bold(true)
                                                     .padding(.horizontal, 5)
                                                     .padding(.vertical, 1)
@@ -441,6 +434,7 @@ struct HomePage: View {
                                                                     lineWidth : 2
                                                                 )
                                                             )
+                                                            .fill(.yellow.opacity(0.1))
                                                     )
                                                     .offset(y :  -3)
                                                     .frame(maxWidth : .infinity)
@@ -461,16 +455,14 @@ struct HomePage: View {
                                                     print("idxd :  \( costData[Int(day.formatted(.dateTime.day())) ?? 0])")
                                                     route.currentPage = .dailyUsage
                                                 }
-                                                
                                             }
                                         }
                                     }
                                 }
-                                
                                 .padding(.horizontal,0)
                             }
                             .padding(.vertical, 20)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal)
                             .background(
                                 RoundedRectangle(
                                     cornerRadius : 10
