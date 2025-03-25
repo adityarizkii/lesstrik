@@ -550,7 +550,7 @@ struct HomePage: View {
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
                 days = date.calendarDisplayDays
                 
-                fetchDailyUsage(date : getCurrentDateAtMidnight()){
+                fetchDailyUsage(date : getCurrentDateAtMidnight()){ data in
                     
                 }
                 fetchRecord()
