@@ -151,12 +151,15 @@ struct WaterProgressView <Content : View>: View  {
     @State var waveOffset: CGFloat = 0.0
     @State var val : Double = 2
     var content : () -> Content
+    var color : Color = .green.opacity(0.6)
+    
+    
     
     var body: some View {
         VStack {
             ZStack {
                 WaterShape(progress: progress, waveOffset: waveOffset)
-                    .fill(Color.green.opacity(0.6))
+                    .fill(color)
                     .frame(width: 150, height: 150)
                     .overlay(
                         content()

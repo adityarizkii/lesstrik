@@ -28,12 +28,14 @@ func getCurrentDateAtMidnight(date : Date = Date()) -> Date? {
 
 struct HomePage: View {
     // swiftdata
+    @Binding var usageData: DailyUsageModel
+
     @Environment(\.modelContext) private var context
     @EnvironmentObject var route : AppRoute
     @State var show = false
     @State var usage = 0
     @State var averageUsage = 0
-    @State var currentMonth = Date().monthInt - 1
+    @Binding var currentMonth:Int
     var dailyUsage = DailyUsage()
     var daily:DailyUsageModel = DailyUsageModel(
         id: UUID(), date: Date.now, totalCost: 0
@@ -41,11 +43,10 @@ struct HomePage: View {
     var dailyUsageData = [DailyUsageModel]()
     var formater = DateFormatter()
     var yearFormatter = DateFormatter()
-    @State var currentYear = 2025
-    @State var year = 2025
+    @Binding var currentYear:Int
+    @Binding var year:Int
     @State var currentPeriod:String = ""
     @State var record = Record()
-    @Binding var usageData: DailyUsageModel
     @State var recordData : RecordType = RecordType(
         id : UUID(),
         period : "",
@@ -188,6 +189,26 @@ struct HomePage: View {
         return Double(getFinalCost())/Double(recordData.usage_goal )
     }
     
+    func getColor()->Color{
+        if getProgress() < 0.5{
+            return .green.opacity(0.6)
+        }else if getProgress() < 0.9{
+            return Color("Warning")
+        }
+        
+        return Color("Danger")
+    }
+    
+    func getProgerssTextColor()->Color{
+        if getProgress() < 0.5{
+            return Color("TintedGreen")
+        }else if getProgress() < 0.9{
+            return Color.orange
+        }
+        
+        return Color.red
+    }
+    
     // navigation
     @State private var path = NavigationPath()
     
@@ -218,10 +239,13 @@ struct HomePage: View {
                             .frame(alignment : .center)
                             VStack{
                                 ZStack{
-                                    WaterProgressView(progress : getProgress()){
+                                    WaterProgressView(
+                                        progress : getProgress(),
+                                        color : getColor()
+                                    ){
                                         Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
                                            .font(.title)
-                                           .foregroundStyle(Color("TintedGreen"))
+                                           .foregroundStyle(getProgerssTextColor())
                                            .bold(true)
                                     }
     //                                CircularProgressView(
@@ -589,16 +613,21 @@ struct HomePage: View {
 
 #Preview {
     @Previewable @StateObject var route = AppRoute()
-
+    @Previewable @State var currentMonth = Date().monthInt-1
+    @Previewable @State var currentYear = 2025
+    @Previewable @State var year = 2020
+    @Previewable @State var usageData : DailyUsageModel =
+        DailyUsageModel(
+            id : UUID(),
+            date : Date.now,
+            totalCost : 0
+        )
     HomePage(
-        usageData :
-                .constant(
-                    DailyUsageModel(
-                        id : UUID(),
-                        date : Date.now,
-                        totalCost : 0
-                    )
-                )
+        usageData : $usageData,
+        currentMonth : $currentMonth,
+        currentYear : $currentYear,
+        year : $year
     )
+
     .environmentObject(route)
 }

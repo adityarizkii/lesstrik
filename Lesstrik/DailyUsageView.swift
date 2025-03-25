@@ -35,6 +35,8 @@ struct DailyUsageView: View {
     }
     
     
+    
+    
     @FocusState private var focusedIndex: Int?  // Tambahkan ini
 
     var body: some View {
@@ -46,15 +48,21 @@ struct DailyUsageView: View {
                     HStack {
                         Image(systemName: "chevron.left")
                         Text("Back")
+                            .font(.title2)
+                            .bold(true)
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
                     .foregroundStyle(.black)
-                    .background(.white)
                 }
+                .padding(.top, 30)
                 Spacer()
             }
             .zIndex(1)
+            .padding(.top, 10)
+            .ignoresSafeArea()
+
+            
             Image("Background")
                 .resizable()
 //                .scaledToFill()
@@ -70,7 +78,7 @@ struct DailyUsageView: View {
                         .padding(.bottom, 4)
                     
                     Text("Daily Goal : Rp\(totalCost)")
-                        .font(.system(.title2))
+                        .font(.system(.title3))
                 }
                 .padding(.vertical, 20)
                 
@@ -173,6 +181,7 @@ struct DailyUsageView: View {
                                     }
                                 }
                             }
+                            
                             .frame(maxWidth: .infinity)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
                             .animation(.easeIn(duration: 0.2), value: data.count)
@@ -231,24 +240,10 @@ struct DailyUsageView: View {
             .onReceive(device.objectWillChange) { _ in
                 calculateTotal()
             }
-            .gesture(
-                DragGesture()
-                    .onChanged { gesture in
-                        offset = gesture.translation
-                    }
-                    .onEnded { _ in
-                        if offset.width > 100 {
-                            route.currentPage = .home
-                        } else {
-                            offset = .zero
-                        }
-                    }
-            )
-            .onTapGesture {
-                focusedIndex = nil  // Menutup keyboard saat area kosong diketuk
-            }
+    
             
         }
+        
     }
 
 }

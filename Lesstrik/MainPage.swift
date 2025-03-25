@@ -9,6 +9,9 @@ import SwiftUI
 struct MainPage: View {
     @EnvironmentObject var route: AppRoute
     @State private var offset = CGSize.zero
+    @State var currentMonth = Date().monthInt-1
+    @State var currentYear = 2025
+    @State var year = 2020
     @State var usageData : DailyUsageModel =
         DailyUsageModel(
             id : UUID(),
@@ -24,8 +27,28 @@ struct MainPage: View {
                 
                 case .dailyUsage:
                 DailyUsageView(usageData : $usageData)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { gesture in
+                                offset = gesture.translation
+                            }
+                            .onEnded { _ in
+                                
+                                print(offset.width)
+                                if offset.width > 100 {
+                                    route.currentPage = .home
+                                } else {
+                                    offset = .zero
+                                }
+                            }
+                    )
                 default:
-                HomePage(usageData : $usageData)
+                HomePage(
+                    usageData : $usageData,
+                    currentMonth : $currentMonth,
+                    currentYear : $currentYear,
+                    year : $year
+                )
             }
            
         }.gesture(
