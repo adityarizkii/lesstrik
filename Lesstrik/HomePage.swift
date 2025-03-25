@@ -424,7 +424,7 @@ struct HomePage: View {
                                                 {
                                                     Text(
                                                         ( String(
-                                                            format : "%.1f",
+                                                            format : "%.f",
                                                             costData[Int(day.formatted(.dateTime.day())) ?? 0]
                                                         )) + "k"
                                                     )
@@ -453,7 +453,8 @@ struct HomePage: View {
                                                 }
                                                 
                                             }
-                                            
+                                            .padding(.vertical, 5)
+                                            .frame(maxWidth : .infinity)
                                             .onTapGesture{
                                                 fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
                                                     print(addDays(to: day, days: 1))
@@ -468,13 +469,14 @@ struct HomePage: View {
                                 
                                 .padding(.horizontal,0)
                             }
-                            .padding(10)
-//                            .background(
-//                                RoundedRectangle(
-//                                    cornerRadius : 10
-//                                )
-//                                .fill(.gray.opacity(0.1))
-//                            )
+                            .padding(.vertical, 20)
+                            .padding(.horizontal, 10)
+                            .background(
+                                RoundedRectangle(
+                                    cornerRadius : 10
+                                )
+                                .fill(.gray.opacity(0.1))
+                            )
                             .padding(.top, 20)
                             
                             
