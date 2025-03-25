@@ -72,13 +72,16 @@ struct DailyUsageView: View {
             VStack {
                 Text("Daily Usage")
                     .font(.system(.largeTitle, weight: .bold))
+                    .foregroundStyle(.black)
                 VStack {
                     Text("Rp\(totalCost)")
                         .font(.system(.title, weight: .semibold))
                         .padding(.bottom, 4)
+                        .foregroundStyle(.black)
                     
                     Text("Daily Goal : Rp\(totalCost)")
                         .font(.system(.title3))
+                        .foregroundStyle(.black)
                 }
                 .padding(.vertical, 20)
                 
