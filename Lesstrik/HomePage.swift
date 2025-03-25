@@ -53,7 +53,7 @@ struct HomePage: View {
         usage_goal : Int32(0)
     )
     @State var costData : [Double] = Array(repeating : 0.0, count : 33)
-    @State var offset = CGSize.zero
+    @Binding var offset : CGSize
     @State var counter = 0
     
     func fetchDailyUsage(date : Date?, callback : @escaping (() -> Void)){
@@ -507,28 +507,7 @@ struct HomePage: View {
                                 .fill(.gray.opacity(0.05))
                             )
                             .padding(.top, 20)
-                            
-                            .gesture(
-                                DragGesture()
-                                    .onChanged { gesture in
-                                        print(gesture.translation)
-                                        offset = gesture.translation
-                                    }
-                                    .onEnded { _ in
-                                        if offset.width > 100 {
-                                            withAnimation{
-                                                prevMonth()
-                                            }
-                                            print("Ouchhh")
-                                        } else if offset.width < -100 {
-                                            withAnimation{
-                                                nextMonth()
-
-                                            }
-                                        }
-                                        offset = .zero
-                                    }
-                            )
+                           
                         }
                         
                         
@@ -625,7 +604,19 @@ struct HomePage: View {
                 fetchUsages()
                 
                 print("Sekarang : \(String(describing: self.recordData.usage_goal))")
+                
+                
+                
+                
 
+            }
+            .onChange(of : offset){ val in
+                if offset.width > 100 {
+                   prevMonth()
+                }else if offset.width < -100 {
+                    nextMonth()
+                }
+                
             }
             
         }
@@ -668,6 +659,8 @@ struct HomePage: View {
     @Previewable @State var currentMonth = Date().monthInt-1
     @Previewable @State var currentYear = 2025
     @Previewable @State var year = 2020
+    @Previewable @State var offset : CGSize = CGSize.zero
+
     @Previewable @State var usageData : DailyUsageModel =
         DailyUsageModel(
             id : UUID(),
@@ -678,7 +671,8 @@ struct HomePage: View {
         usageData : $usageData,
         currentMonth : $currentMonth,
         currentYear : $currentYear,
-        year : $year
+        year : $year,
+        offset : $offset
     )
 
     .environmentObject(route)

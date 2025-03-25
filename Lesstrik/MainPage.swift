@@ -47,7 +47,8 @@ struct MainPage: View {
                     usageData : $usageData,
                     currentMonth : $currentMonth,
                     currentYear : $currentYear,
-                    year : $year
+                    year : $year,
+                    offset: $offset
                 )
             }
             
@@ -62,7 +63,19 @@ struct MainPage: View {
             .frame(maxWidth : .infinity, maxHeight : .infinity, alignment: .top)
             .offset(y :-20)
            
-        }
+        }.gesture(
+            DragGesture()
+                .onChanged { gesture in
+                    print(gesture.translation)
+                    offset = gesture.translation
+                }
+                .onEnded { _ in
+                    if offset.width > 100 {
+                    } else {
+                        offset = .zero
+                    }
+                }
+        )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         
         
