@@ -55,7 +55,7 @@ struct DailyUsageView: View {
                     .padding(.vertical, 8)
                     .foregroundStyle(.black)
                 }
-                .padding(.top, 30)
+                .padding(.top, 40)
                 Spacer()
             }
             .zIndex(1)

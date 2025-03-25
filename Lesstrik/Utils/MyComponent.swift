@@ -88,6 +88,7 @@ struct myAlert: View {
                     .multilineTextAlignment(.center)
 
                 TextField("Input your goal", text: $value)
+                    .foregroundStyle(.black)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 10)
                     .background(
@@ -98,8 +99,11 @@ struct myAlert: View {
 
                 HStack(spacing: 0) {
                     Button(action: {
-                        visible = false  // ✅ Tutup alert
-                        onCancel()
+                        withAnimation{
+                            visible = false
+                            onCancel()
+
+                        }
                     }) {
                         Text("Cancel")
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -115,7 +119,7 @@ struct myAlert: View {
                     .frame(maxWidth: .infinity, alignment: .center)
 
                     Button(action: {
-                        visible = false  // ✅ Tutup alert
+                        visible = false
                         onSave(value)
                     }) {
                         Text("Save")
@@ -135,8 +139,10 @@ struct myAlert: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("LightGrey"))
+                    .fill(Color("ToastBackground"))
             )
+            .transition(.scale)
+            .animation(.easeIn(duration: 0.5), value : visible)
             .padding(50)
         } else {
             EmptyView()
@@ -146,41 +152,63 @@ struct myAlert: View {
 }
 
 
-struct WaterProgressView <Content : View>: View  {
+import SwiftUI
+
+struct WaterProgressView<Content: View>: View {
+    @State private var timer: DispatchSourceTimer?
+    private let queue = DispatchQueue(label: "com.example.background", qos: .background)
+
     var progress: Double = 0.5
-    @State var waveOffset: CGFloat = 0.0
-    @State var val : Double = 2
-    var content : () -> Content
-    var color : Color = .green.opacity(0.6)
-    
-    
-    
+    @State private var waveOffset: CGFloat = 0.0
+    @State private var val: Double = 2
+    var content: () -> Content
+    var color: Color = .green.opacity(0.6)
+
     var body: some View {
         VStack {
             ZStack {
                 WaterShape(progress: progress, waveOffset: waveOffset)
                     .fill(color)
                     .frame(width: 150, height: 150)
-                    .overlay(
-                        content()
-                    )
+                    .overlay(content())
                     .clipShape(Circle())
                     .onAppear {
-                       
-                        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-                            waveOffset = .pi * val * 0.3
-                            val += 0.1
-                        }
-                       
+                        startTimer()
                     }
                     .background(
                         Circle()
                             .fill(Color.green.opacity(0.1))
                     )
+                    .onDisappear {
+                        stopTimer()
+                    }
             }
         }
     }
+
+    private func startTimer() {
+        stopTimer()
+        
+        let newTimer = DispatchSource.makeTimerSource(queue: queue)
+        newTimer.schedule(deadline: .now(), repeating: 0.01)
+
+        newTimer.setEventHandler {
+            DispatchQueue.main.async {
+                waveOffset = .pi * val
+                val += 0.1
+            }
+        }
+
+        newTimer.resume()
+        timer = newTimer
+    }
+
+    private func stopTimer() {
+        timer?.cancel()
+        timer = nil
+    }
 }
+
 
 struct WaterShape: Shape {
     var progress: Double

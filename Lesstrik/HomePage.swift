@@ -53,8 +53,8 @@ struct HomePage: View {
         usage_goal : Int32(0)
     )
     @State var costData : [Double] = Array(repeating : 0.0, count : 33)
-    
-    
+    @Binding var offset : CGSize
+    @State var counter = 0
     
     func fetchDailyUsage(date : Date?, callback : @escaping (() -> Void)){
         if date != nil {
@@ -210,6 +210,26 @@ struct HomePage: View {
         return Color.red
     }
     
+    func prevMonth(){
+        currentYear -= currentMonth == 0 ? 1 : 0
+        currentMonth = (currentMonth + 11) % 12
+        fetchRecord()
+        fetchUsages()
+        fetchDailyUsage(date: self.date){
+            
+        }
+    }
+    
+    func nextMonth(){
+        currentYear += currentMonth == 11 ? 1 : 0
+        currentMonth = (currentMonth + 13) % 12
+        fetchRecord()
+        fetchUsages()
+        fetchDailyUsage(date: date){
+            
+        }
+    }
+    
     // navigation
     @State private var path = NavigationPath()
     
@@ -249,28 +269,6 @@ struct HomePage: View {
                                            .foregroundStyle(getProgerssTextColor())
                                            .bold(true)
                                     }
-    //                                CircularProgressView(
-    //                                    progress : getProgress(),
-    //                                    color : Color("TintedGreen"),
-    //                                    padding : 1,
-    //                                    thick : 25
-    //                                ){
-    //                                    VStack{
-    //                                        Text("\(String(format  : "%.0f" , getProgress() * 100.0) + "%")")
-    //                                            .font(.title)
-    //                                            .foregroundStyle(Color("TintedGreen"))
-    //                                            .bold(true)
-    //                                        Text("From target")
-    //                                            .font(.caption2)
-    //                                            .bold(true)
-    //                                            .foregroundStyle(Color("TintedGreen"))
-    //
-    //                                    }
-    //
-    //                                }
-    //                                .padding(.leading, 10)
-    //                                .padding(.top, 20)
-    //                                .frame(height : 140)
                                     
                                 }
                                 .frame(maxHeight : .infinity, alignment : .center)
@@ -349,10 +347,15 @@ struct HomePage: View {
                                         Spacer()
                                         
                                         Button (action : {
-                                            print("Set")
-                                            show = true
+                                            
+                                            withAnimation {
+                                                print("Set")
+                                                counter += 1
+                                                show = true
+                                            }
+                                            
                                         }){
-                                            Text("Set Goal")
+                                            Text("Set Limit")
                                                 .font(.system(.caption))
                                                 .foregroundStyle(.black)
                                                 .bold(true)
@@ -395,26 +398,19 @@ struct HomePage: View {
                                 HStack {
                                     Text("\(getMonthString(m: currentMonth)) \(String(currentYear))")
                                     Spacer()
-                                    HStack {
+                                    HStack(spacing : 30) {
                                         Image(systemName: "chevron.left")
                                             .onTapGesture {
-                                                currentYear -= currentMonth == 0 ? 1 : 0
-                                                currentMonth = (currentMonth + 11) % 12
-                                                fetchRecord()
-                                                fetchUsages()
-                                                fetchDailyUsage(date: self.date){
-                                                    
+                                                withAnimation{
+                                                    prevMonth()
                                                 }
+                                               
                                                 
                                             }
                                         Image(systemName: "chevron.right")
                                             .onTapGesture {
-                                                currentYear += currentMonth == 11 ? 1 : 0
-                                                currentMonth = (currentMonth + 13) % 12
-                                                fetchRecord()
-                                                fetchUsages()
-                                                fetchDailyUsage(date: date){
-                                                    
+                                                withAnimation{
+                                                   nextMonth()
                                                 }
                                             }
                                     }
@@ -497,6 +493,9 @@ struct HomePage: View {
                                     }
                                 }
                                 .padding(.horizontal,0)
+                                .transition(.opacity)
+                                .animation(.easeInOut, value : currentMonth)
+                                
                             }
                             .padding(.vertical, 20)
                             .padding(.horizontal)
@@ -508,8 +507,7 @@ struct HomePage: View {
                                 .fill(.gray.opacity(0.05))
                             )
                             .padding(.top, 20)
-                            
-                            
+                           
                         }
                         
                         
@@ -578,11 +576,16 @@ struct HomePage: View {
                                 }
                             }
                         }
+                       
                     },
                     onCancel: {
-                        
+                        withAnimation {
+                           show = false
+                        }
                     }
                 )
+               
+               
                 
             }
             .onAppear {
@@ -601,7 +604,19 @@ struct HomePage: View {
                 fetchUsages()
                 
                 print("Sekarang : \(String(describing: self.recordData.usage_goal))")
+                
+                
+                
+                
 
+            }
+            .onChange(of : offset){ val in
+                if offset.width > 100 {
+                   prevMonth()
+                }else if offset.width < -100 {
+                    nextMonth()
+                }
+                
             }
             
         }
@@ -644,6 +659,8 @@ struct HomePage: View {
     @Previewable @State var currentMonth = Date().monthInt-1
     @Previewable @State var currentYear = 2025
     @Previewable @State var year = 2020
+    @Previewable @State var offset : CGSize = CGSize.zero
+
     @Previewable @State var usageData : DailyUsageModel =
         DailyUsageModel(
             id : UUID(),
@@ -654,7 +671,8 @@ struct HomePage: View {
         usageData : $usageData,
         currentMonth : $currentMonth,
         currentYear : $currentYear,
-        year : $year
+        year : $year,
+        offset : $offset
     )
 
     .environmentObject(route)

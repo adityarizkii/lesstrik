@@ -22,7 +22,7 @@ struct MainPage: View {
     var body: some View {
         
         ZStack{
-
+           
             switch route.currentPage {
                 
                 case .dailyUsage:
@@ -47,9 +47,21 @@ struct MainPage: View {
                     usageData : $usageData,
                     currentMonth : $currentMonth,
                     currentYear : $currentYear,
-                    year : $year
+                    year : $year,
+                    offset: $offset
                 )
             }
+            
+            HStack{
+                Text("")
+                    .frame(maxWidth  : .infinity, alignment: .top)
+                    .padding(0)
+            }
+            .padding(0)
+            .ignoresSafeArea(.all)
+            .background(.ultraThinMaterial)
+            .frame(maxWidth : .infinity, maxHeight : .infinity, alignment: .top)
+            .offset(y :-20)
            
         }.gesture(
             DragGesture()
@@ -59,14 +71,15 @@ struct MainPage: View {
                 }
                 .onEnded { _ in
                     if offset.width > 100 {
-                        print("Ouchhh")
                     } else {
                         offset = .zero
                     }
                 }
         )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         
         
+
         
     }
         
