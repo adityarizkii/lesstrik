@@ -553,7 +553,7 @@ struct HomePage: View {
                 }
                 
                 
-                myAlert(
+                MyAlert(
                     visible : $show,
                     onSave : { value in
                         if let num = Int(value) {
