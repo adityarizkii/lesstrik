@@ -37,7 +37,7 @@ struct DailyUsageView: View {
     
     
     
-    @FocusState private var focusedIndex: Int?  // Tambahkan ini
+    @FocusState private var focusedIndex: Int?
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -65,10 +65,9 @@ struct DailyUsageView: View {
             
             Image("Background")
                 .resizable()
-//                .scaledToFill()
-                .frame(height: UIScreen.main.bounds.height * 0.3) // 20% dari tinggi layar
+                .frame(height: UIScreen.main.bounds.height * 0.3)
                 .clipShape(BottomRoundedShape(radius: 30))
-                .ignoresSafeArea() // Menutupi area safe area
+                .ignoresSafeArea()
             VStack {
                 Text("Daily Usage")
                     .font(.system(.largeTitle, weight: .bold))
@@ -91,7 +90,6 @@ struct DailyUsageView: View {
                         .fontWeight(.bold)
                     Spacer()
                     Button(action: {
-                        device.updateDailyUsage(data : data)
                         data.append(
                             DeviceData(
                                 id: device.getNextID(),
@@ -101,6 +99,7 @@ struct DailyUsageView: View {
                                 usage_id : usageData.id
                             )
                         )
+                        device.updateDailyUsage(data : data)
                         count += 1
                         showDetail.toggle()
                     }) {
@@ -135,7 +134,7 @@ struct DailyUsageView: View {
                                         .overlay(RoundedRectangle(cornerRadius: 5).stroke(.gray))
                                         .frame(maxWidth: .infinity)
                                         .background(.gray.opacity(0.1))
-                                        .focused($focusedIndex, equals: index)  // Tambahkan ini
+                                        .focused($focusedIndex, equals: index)
                                     
                                     TextField("Watt", text: Binding(
                                         get: { String(data[index].power) == "0" ? "" : String(data[index].power) },
@@ -238,7 +237,6 @@ struct DailyUsageView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(.horizontal, 25)
             .padding(.top, 30)
-            //        .background(.gray.opacity(0.3))
             .animation(.easeIn(duration: 2), value: route.currentPage)
             .onAppear {
                 print("Current : \(usageData.date)")
@@ -253,7 +251,7 @@ struct DailyUsageView: View {
                 calculateTotal()
             }
             .onTapGesture {
-               focusedIndex = nil  // Menutup keyboard saat area kosong diketuk
+               focusedIndex = nil
            }
     
             
