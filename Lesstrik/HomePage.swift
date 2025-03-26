@@ -66,7 +66,7 @@ struct HomePage: View {
                     daily.totalCost = result!.totalCost
                     usageData = result!
                     callback()
-                    print("Daily : Berhasil mengambil data !")
+                    //print("Daily : Berhasil mengambil data !")
                     return
                 }
                 
@@ -93,7 +93,7 @@ struct HomePage: View {
                         }
                     }
                     
-                    print("Daily : \(String(describing: error)), \(String(describing: message))")
+                    //print("Daily : \(String(describing: error)), \(String(describing: message))")
                 }
             }
         }
@@ -138,7 +138,7 @@ struct HomePage: View {
             self.formater.dateFormat = "MMyyyy"
             self.currentPeriod = self.formater.string(from : d)
             self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
-            print("Tanggal skrg : \(d)   -  \(self.currentPeriod)")
+            //print("Tanggal skrg : \(d)   -  \(self.currentPeriod)")
 
             record.getRecords(period: self.currentPeriod){ value in
                 if value != nil {
@@ -349,7 +349,6 @@ struct HomePage: View {
                                         Button (action : {
                                             
                                             withAnimation {
-                                                print("Set")
                                                 counter += 1
                                                 show = true
                                             }
@@ -484,7 +483,7 @@ struct HomePage: View {
                                             .frame(maxWidth : .infinity)
                                             .onTapGesture{
                                                 fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: day, days: 1))){
-                                                    print(addDays(to: day, days: 1))
+                                                    print("Fethed : \(addDays(to: day, days: 1))")
                                                   
                                                     route.currentPage = .dailyUsage
                                                 }
@@ -512,8 +511,9 @@ struct HomePage: View {
                         
                         
                         .onChange(of: date) {
+                            
                             days = date.calendarDisplayDays
-                            print(getDaysInMonth(from: convertToGMT7(date)))
+                            //print(getDaysInMonth(from: convertToGMT7(date)))
                         }
                         .padding(.horizontal, 25)
                         
@@ -529,7 +529,11 @@ struct HomePage: View {
                     
                     Button {
                         //path.append("Calculate")
-                        route.currentPage = .dailyUsage
+                        fetchDailyUsage(date: getCurrentDateAtMidnight(date: addDays(to: Date.now, days: 1))){
+                          
+                            route.currentPage = .dailyUsage
+                        }
+            
                     } label: {
                         Text("Add Today Usage")
                             .foregroundStyle(.black)
@@ -591,7 +595,6 @@ struct HomePage: View {
             .onAppear {
                 self.formater.setLocalizedDateFormatFromTemplate( "yyyyMM" )
                 self.yearFormatter.setLocalizedDateFormatFromTemplate("yyyy")
-                self.currentYear = Int(self.yearFormatter.string(from : Date.now))!
                 self.year = Int(self.yearFormatter.string(from : Date.now))!
                 self.currentPeriod = self.formater.string(from : Date.now)
                 self.currentPeriod = self.currentPeriod.replacingOccurrences(of: "/", with: "")
@@ -603,7 +606,7 @@ struct HomePage: View {
                 fetchRecord()
                 fetchUsages()
                 
-                print("Sekarang : \(String(describing: self.recordData.usage_goal))")
+                //print("Sekarang : \(String(describing: self.recordData.usage_goal))")
                 
                 
                 
