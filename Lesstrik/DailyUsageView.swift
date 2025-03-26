@@ -237,6 +237,7 @@ struct DailyUsageView: View {
             //        .background(.gray.opacity(0.3))
             .animation(.easeIn(duration: 2), value: route.currentPage)
             .onAppear {
+                print("Current : \(usageData.date)")
                 device.getDeviceByUsage(id: usageData.id){ result in
                     print(usageData.id)
                     data = result

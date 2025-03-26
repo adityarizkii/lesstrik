@@ -9,6 +9,8 @@ import SwiftUI
 struct MainPage: View {
     @EnvironmentObject var route: AppRoute
     @State private var offset = CGSize.zero
+    @State private var curOffset = CGSize.zero
+
     @State var currentMonth = Date().monthInt-1
     @State var currentYear = 2025
     @State var year = 2020
@@ -48,7 +50,7 @@ struct MainPage: View {
                     currentMonth : $currentMonth,
                     currentYear : $currentYear,
                     year : $year,
-                    offset: $offset
+                    offset: $curOffset
                 )
             }
             
@@ -70,7 +72,9 @@ struct MainPage: View {
                     offset = gesture.translation
                 }
                 .onEnded { _ in
-                    if offset.width > 100 {
+                    if offset.width > 100 || offset.width < -100 {
+                        curOffset = offset
+                        
                     } else {
                         offset = .zero
                     }

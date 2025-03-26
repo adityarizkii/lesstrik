@@ -54,13 +54,15 @@ class DailyUsage : ObservableObject{
                 startComponents.year = year
                 startComponents.month = month
                 startComponents.day = 1
+                
                 let startOfMonth = calendar.date(from: startComponents)!
 
                 let range = calendar.range(of: .day, in: .month, for: startOfMonth)!
                 var endComponents = startComponents
+                endComponents.hour = 23
                 endComponents.day = range.count
                 let endOfMonth = calendar.date(from: endComponents)!
-
+                print(endOfMonth)
                 request.predicate = NSPredicate(format: "date >= %@ AND date <= %@", startOfMonth as NSDate, endOfMonth as NSDate)
                 request.sortDescriptors = [NSSortDescriptor(key: "totalCost", ascending: false)]
 
