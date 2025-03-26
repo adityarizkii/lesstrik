@@ -173,7 +173,11 @@ struct DailyUsageView: View {
                                             focusedIndex = nil
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                                 device.deleteDailyUsage(index : data[index].id)
+                                              
                                                 data.remove(at: index)
+                                                device.updateDailyUsage(data: data)
+                                                calculateTotal()
+
                                                 showDetail = false
                                             }
                                         }) {

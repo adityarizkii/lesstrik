@@ -190,12 +190,12 @@ struct WaterProgressView<Content: View>: View {
         stopTimer()
         
         let newTimer = DispatchSource.makeTimerSource(queue: queue)
-        newTimer.schedule(deadline: .now(), repeating: 0.01)
+        newTimer.schedule(deadline: .now(), repeating: 0.001)
 
         newTimer.setEventHandler {
             DispatchQueue.main.async {
                 waveOffset = .pi * val
-                val += 0.1
+                val += 0.02
             }
         }
 
